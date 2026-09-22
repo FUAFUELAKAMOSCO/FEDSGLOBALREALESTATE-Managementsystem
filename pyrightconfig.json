@@ -1,0 +1,10 @@
+{
+  "include": [
+    "realestate_system"
+  ],
+  "extraPaths": [
+    "./realestate_system"
+  ],
+  "venvPath": ".",
+  "venv": "venv"
+}
