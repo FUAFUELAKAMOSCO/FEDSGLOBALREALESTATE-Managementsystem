@@ -1,0 +1,47 @@
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+
+# Environment Variables
+.env
+*.env
+!.env.example
+
+# SQLite Database
+*.sqlite3
+*.sqlite3-journal
+db.sqlite3
+db.sqlite3.backup
+
+# Python Bytecode & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Static files collected
+staticfiles/
+realestate_system/staticfiles/
+
+# Uploaded Media
+media/*
+!media/.gitkeep
+realestate_system/media/*
+!realestate_system/media/.gitkeep
+
+# IDE & OS files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Celery & Logs
+*.log
+celerybeat-schedule*

@@ -1,0 +1,416 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h2 class="mb-1 text-navy"><i class="bi bi-calendar2-check-fill text-success me-2"></i>Bookings & Showings Schedule</h2>
+        <p class="text-muted mb-0">Coordinate property walkthroughs, client consultations, site inspections, and notary signings.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <div class="btn-group shadow-sm" role="group">
+            <a href="?scope=all" class="btn btn-sm {% if scope == 'all' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+                All ({{ total_bookings }})
+            </a>
+            <a href="?scope=mine" class="btn btn-sm {% if scope == 'mine' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+                My Bookings
+            </a>
+        </div>
+        <a href="{% url 'bookings:create' %}" class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold shadow-sm">
+            <i class="bi bi-calendar-plus-fill me-1"></i> New Booking
+        </a>
+    </div>
+</div>
+
+<!-- KPI Cards Row -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl">
+        <div class="stat-card-pro stat-card-primary h-100">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Total Bookings</div>
+                    <div class="stat-value">{{ total_bookings }}</div>
+                    <div class="mt-2 small text-muted">All scheduled events</div>
+                </div>
+                <div class="stat-icon stat-icon-blue">
+                    <i class="bi bi-calendar-week-fill"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl">
+        <div class="stat-card-pro stat-card-success h-100">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Showings Today</div>
+                    <div class="stat-value">{{ today_count }}</div>
+                    <div class="mt-2 small text-muted">Scheduled for today</div>
+                </div>
+                <div class="stat-icon stat-icon-green">
+                    <i class="bi bi-calendar-day-fill"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl">
+        <div class="stat-card-pro stat-card-primary h-100">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Upcoming (7 Days)</div>
+                    <div class="stat-value">{{ upcoming_count }}</div>
+                    <div class="mt-2 small text-muted">Weekly agenda density</div>
+                </div>
+                <div class="stat-icon stat-icon-blue">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl">
+        <div class="stat-card-pro stat-card-purple h-100">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Completed Showings</div>
+                    <div class="stat-value">{{ completed_count }}</div>
+                    <div class="mt-2 small text-muted">Finished appointments</div>
+                </div>
+                <div class="stat-icon stat-icon-purple">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl">
+        <div class="stat-card-pro stat-card-warning h-100">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Confirmation Rate</div>
+                    <div class="stat-value">{{ confirmed_rate }}%</div>
+                    <div class="mt-2">
+                        <div class="progress" style="height: 6px; width: 100px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ confirmed_rate }}%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-icon stat-icon-amber">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-4 mb-4">
+    <!-- Chart 1: Bookings by Type -->
+    <div class="col-lg-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-header bg-white">
+                <h6 class="mb-0 fw-bold text-navy"><i class="bi bi-pie-chart-fill text-primary me-2"></i>Engagement Types</h6>
+                <small class="text-muted">Viewing vs meeting vs visit</small>
+            </div>
+            <div class="card-body">
+                <div class="chart-container-wrapper" style="max-height: 240px;">
+                    <canvas id="bookingsTypeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 2: Booking Statuses -->
+    <div class="col-lg-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-header bg-white">
+                <h6 class="mb-0 fw-bold text-navy"><i class="bi bi-bar-chart-fill text-success me-2"></i>Booking Status Overview</h6>
+                <small class="text-muted">Confirmed, requested & done</small>
+            </div>
+            <div class="card-body">
+                <div class="chart-container-wrapper" style="max-height: 240px;">
+                    <canvas id="bookingsStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 3: Upcoming 7-Day Density -->
+    <div class="col-lg-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-header bg-white">
+                <h6 class="mb-0 fw-bold text-navy"><i class="bi bi-graph-up text-info me-2"></i>7-Day Upcoming Density</h6>
+                <small class="text-muted">Showings density by date</small>
+            </div>
+            <div class="card-body">
+                <div class="chart-container-wrapper" style="max-height: 240px;">
+                    <canvas id="bookingsDensityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Timeframe Tabs & Filter Bar -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-3">
+        <!-- Navigation Pills for Timeframe -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-3 border-bottom">
+            <ul class="nav nav-pills gap-1">
+                <li class="nav-item">
+                    <a class="nav-link {% if timeframe == 'all' %}active{% endif %} py-1 px-3 small" href="?scope={{ scope }}&timeframe=all">
+                        All Bookings
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if timeframe == 'today' %}active{% endif %} py-1 px-3 small" href="?scope={{ scope }}&timeframe=today">
+                        <i class="bi bi-calendar2-day me-1"></i> Today
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if timeframe == 'upcoming' %}active{% endif %} py-1 px-3 small" href="?scope={{ scope }}&timeframe=upcoming">
+                        <i class="bi bi-calendar-plus me-1"></i> Upcoming
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if timeframe == 'past' %}active{% endif %} py-1 px-3 small" href="?scope={{ scope }}&timeframe=past">
+                        <i class="bi bi-clock-history me-1"></i> Past
+                    </a>
+                </li>
+            </ul>
+
+            <span class="badge badge-soft-slate py-2 px-3 small">
+                Showing {{ bookings.count }} appointments
+            </span>
+        </div>
+
+        <!-- Filter Form -->
+        <form method="get" class="row g-2 align-items-center">
+            <input type="hidden" name="scope" value="{{ scope }}">
+            <input type="hidden" name="timeframe" value="{{ timeframe }}">
+
+            <div class="col-md-5">
+                <div class="input-group search-input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" name="q" value="{{ q }}" class="form-control form-control-sm" placeholder="Search client name, property address, notes...">
+                </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+                <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">All Statuses</option>
+                    {% for key, label in statuses %}
+                        <option value="{{ key }}" {% if status_filter == key %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+                <select name="type" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">All Types</option>
+                    {% for key, label in types %}
+                        <option value="{{ key }}" {% if type_filter == key %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-1 d-flex gap-1">
+                <button type="submit" class="btn btn-primary btn-sm w-100" title="Search"><i class="bi bi-arrow-right"></i></button>
+                {% if q or status_filter or type_filter %}
+                    <a href="?scope={{ scope }}&timeframe={{ timeframe }}" class="btn btn-outline-secondary btn-sm" title="Clear"><i class="bi bi-x-lg"></i></a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Bookings Table Card -->
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-pro align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Scheduled Date & Time</th>
+                    <th>Client Contact</th>
+                    <th>Property & Location</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Assigned Agent</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for b in bookings %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="p-2 rounded bg-light border text-center" style="min-width: 54px;">
+                                <div class="text-uppercase fw-bold text-danger" style="font-size:0.65rem;">{{ b.booking_datetime|date:"M" }}</div>
+                                <div class="fw-bold fs-6 lh-1">{{ b.booking_datetime|date:"d" }}</div>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-primary">{{ b.booking_datetime|date:"H:i" }}</div>
+                                <div class="small text-muted">{{ b.booking_datetime|date:"l" }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="fw-bold text-dark">{{ b.client.full_name }}</div>
+                        <div class="d-flex align-items-center gap-2 mt-1">
+                            {% if b.client.phone %}
+                                <a href="tel:{{ b.client.phone }}" class="text-decoration-none small text-muted">
+                                    <i class="bi bi-telephone text-primary me-1"></i>{{ b.client.phone }}
+                                </a>
+                                <a href="https://wa.me/{{ b.client.phone|cut:' '|cut:'+' }}" target="_blank" class="text-success small" title="WhatsApp">
+                                    <i class="bi bi-whatsapp"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="fw-semibold text-dark text-truncate" style="max-width: 280px;" title="{{ b.property_address }}">
+                            <i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ b.property_address }}
+                        </div>
+                        {% if b.notes %}
+                            <small class="text-muted d-block text-truncate" style="max-width: 280px;">
+                                <i class="bi bi-info-circle me-1"></i>{{ b.notes }}
+                            </small>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if b.booking_type == 'VIEWING' %}
+                            <span class="badge badge-soft-primary"><i class="bi bi-eye me-1"></i>Viewing</span>
+                        {% elif b.booking_type == 'MEETING' %}
+                            <span class="badge badge-soft-purple"><i class="bi bi-people me-1"></i>Meeting</span>
+                        {% elif b.booking_type == 'SITE_VISIT' %}
+                            <span class="badge badge-soft-info"><i class="bi bi-compass me-1"></i>Site Visit</span>
+                        {% else %}
+                            <span class="badge badge-soft-slate"><i class="bi bi-telephone me-1"></i>Call</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if b.status == 'CONFIRMED' %}
+                            <span class="badge badge-soft-success badge-pill-custom"><i class="bi bi-check-circle me-1"></i>Confirmed</span>
+                        {% elif b.status == 'REQUESTED' %}
+                            <span class="badge badge-soft-warning badge-pill-custom"><i class="bi bi-clock me-1"></i>Requested</span>
+                        {% elif b.status == 'COMPLETED' %}
+                            <span class="badge badge-soft-primary badge-pill-custom"><i class="bi bi-check2-all me-1"></i>Completed</span>
+                        {% elif b.status == 'NOSHOW' %}
+                            <span class="badge badge-soft-danger badge-pill-custom">No-Show</span>
+                        {% else %}
+                            <span class="badge badge-soft-slate badge-pill-custom">Cancelled</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if b.assigned_to %}
+                            <span class="badge bg-light text-dark border">
+                                <i class="bi bi-person-badge text-primary me-1"></i>{{ b.assigned_to.get_full_name|default:b.assigned_to.username }}
+                            </span>
+                        {% else %}
+                            <span class="text-muted small">Unassigned</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-5">
+                        <i class="bi bi-calendar-x fs-2 d-block mb-2 text-secondary"></i>
+                        No bookings found matching your criteria.
+                        <div class="mt-2">
+                            <a href="{% url 'bookings:create' %}" class="btn btn-sm btn-primary rounded-pill">+ Schedule New Booking</a>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // 1. Booking Types Doughnut Chart
+    const typeCtx = document.getElementById('bookingsTypeChart');
+    if (typeCtx) {
+        new Chart(typeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ type_labels_json|safe }},
+                datasets: [{
+                    data: {{ type_counts_json|safe }},
+                    backgroundColor: ['#2563eb', '#7c3aed', '#059669', '#f59e0b'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8 } }
+                },
+                cutout: '60%'
+            }
+        });
+    }
+
+    // 2. Booking Status Bar Chart
+    const statusCtx = document.getElementById('bookingsStatusChart');
+    if (statusCtx) {
+        new Chart(statusCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ status_labels_json|safe }},
+                datasets: [{
+                    data: {{ status_counts_json|safe }},
+                    backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#ef4444', '#94a3b8'],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // 3. Upcoming Density Line Chart
+    const densityCtx = document.getElementById('bookingsDensityChart');
+    if (densityCtx) {
+        new Chart(densityCtx, {
+            type: 'line',
+            data: {
+                labels: {{ date_labels_json|safe }},
+                datasets: [{
+                    label: 'Scheduled',
+                    data: {{ daily_booking_counts_json|safe }},
+                    borderColor: '#059669',
+                    backgroundColor: 'rgba(5, 150, 105, 0.12)',
+                    fill: true,
+                    tension: 0.35,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#059669',
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

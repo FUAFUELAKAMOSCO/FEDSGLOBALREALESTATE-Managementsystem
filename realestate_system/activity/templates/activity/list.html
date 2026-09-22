@@ -1,0 +1,378 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h2 class="mb-1 text-navy"><i class="bi bi-journal-text text-primary me-2"></i>Activity &amp; Interaction Velocity</h2>
+        <p class="text-muted mb-0">Audit client outreach velocity, WhatsApp follow-ups, field meetings, and negotiation notes.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <div class="btn-group shadow-sm" role="group">
+            <a href="?scope=all{% if timeframe != 'all' %}&timeframe={{ timeframe }}{% endif %}{% if action_filter %}&action={{ action_filter }}{% endif %}{% if q %}&q={{ q }}{% endif %}" class="btn btn-sm {% if scope == 'all' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+                All Logs ({{ total_activities }})
+            </a>
+            <a href="?scope=mine{% if timeframe != 'all' %}&timeframe={{ timeframe }}{% endif %}{% if action_filter %}&action={{ action_filter }}{% endif %}{% if q %}&q={{ q }}{% endif %}" class="btn btn-sm {% if scope == 'mine' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+                My Interactions
+            </a>
+        </div>
+        <a href="{% url 'activity:create' %}" class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold shadow-sm">
+            <i class="bi bi-plus-circle-fill me-1"></i> Log Activity
+        </a>
+    </div>
+</div>
+
+<!-- KPI Cards Row -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl">
+        <a href="?scope={{ scope }}&timeframe=all" class="text-decoration-none">
+            <div class="stat-card-pro stat-card-primary h-100 card-hover">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Total Events</div>
+                        <div class="stat-value">{{ total_activities }}</div>
+                        <div class="mt-2 small text-muted">Documented engagements</div>
+                    </div>
+                    <div class="stat-icon stat-icon-blue">
+                        <i class="bi bi-journal-check"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-sm-6 col-xl">
+        <a href="?scope={{ scope }}&action=CALLED" class="text-decoration-none">
+            <div class="stat-card-pro stat-card-primary h-100 card-hover">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Phone Calls</div>
+                        <div class="stat-value">{{ calls_count }}</div>
+                        <div class="mt-2 small text-muted">Outreach &amp; inbound</div>
+                    </div>
+                    <div class="stat-icon stat-icon-blue">
+                        <i class="bi bi-telephone-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-sm-6 col-xl">
+        <a href="?scope={{ scope }}&action=WHATSAPP" class="text-decoration-none">
+            <div class="stat-card-pro stat-card-success h-100 card-hover">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">WhatsApp Chats</div>
+                        <div class="stat-value">{{ whatsapp_count }}</div>
+                        <div class="mt-2 small text-muted">Brochure &amp; pricing shares</div>
+                    </div>
+                    <div class="stat-icon stat-icon-green">
+                        <i class="bi bi-whatsapp"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-sm-6 col-xl">
+        <a href="?scope={{ scope }}&action=MET" class="text-decoration-none">
+            <div class="stat-card-pro stat-card-warning h-100 card-hover">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Client Meetings</div>
+                        <div class="stat-value">{{ meetings_count }}</div>
+                        <div class="mt-2 small text-muted">Site visits &amp; consultations</div>
+                    </div>
+                    <div class="stat-icon stat-icon-amber">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-sm-6 col-xl">
+        <a href="?scope={{ scope }}&timeframe=today" class="text-decoration-none">
+            <div class="stat-card-pro stat-card-purple h-100 card-hover">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Today's Velocity</div>
+                        <div class="stat-value">{{ today_velocity }}</div>
+                        <div class="mt-2 small text-muted">
+                            <span class="badge badge-soft-primary">Live Today</span>
+                        </div>
+                    </div>
+                    <div class="stat-icon stat-icon-purple">
+                        <i class="bi bi-speedometer2"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-5">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-0 fw-bold text-navy"><i class="bi bi-pie-chart-fill text-primary me-2"></i>Engagement Channels</h6>
+                    <small class="text-muted">Communication modalities breakdown</small>
+                </div>
+                <span class="badge badge-soft-primary badge-pill-custom">Channels</span>
+            </div>
+            <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                <div class="chart-container-wrapper" style="height: 240px; width: 100%; position: relative;">
+                    <canvas id="channelChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-0 fw-bold text-navy"><i class="bi bi-graph-up text-info me-2"></i>7-Day Interaction Velocity</h6>
+                    <small class="text-muted">Daily volume of client touches</small>
+                </div>
+                <span class="badge badge-soft-info badge-pill-custom">Velocity</span>
+            </div>
+            <div class="card-body">
+                <div class="chart-container-wrapper" style="height: 240px; width: 100%; position: relative;">
+                    <canvas id="velocityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters Toolbar -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-3">
+        <form method="get" class="row g-2 align-items-center">
+            <input type="hidden" name="scope" value="{{ scope }}">
+
+            <!-- Timeframe Filter Buttons -->
+            <div class="col-12 col-md-auto mb-2 mb-md-0">
+                <div class="btn-group btn-group-sm w-100" role="group">
+                    <a href="?scope={{ scope }}&timeframe=all{% if action_filter %}&action={{ action_filter }}{% endif %}{% if q %}&q={{ q }}{% endif %}" class="btn {% if timeframe == 'all' %}btn-dark text-white fw-bold{% else %}btn-light border{% endif %}">
+                        All Time
+                    </a>
+                    <a href="?scope={{ scope }}&timeframe=today{% if action_filter %}&action={{ action_filter }}{% endif %}{% if q %}&q={{ q }}{% endif %}" class="btn {% if timeframe == 'today' %}btn-dark text-white fw-bold{% else %}btn-light border{% endif %}">
+                        Today
+                    </a>
+                    <a href="?scope={{ scope }}&timeframe=week{% if action_filter %}&action={{ action_filter }}{% endif %}{% if q %}&q={{ q }}{% endif %}" class="btn {% if timeframe == 'week' %}btn-dark text-white fw-bold{% else %}btn-light border{% endif %}">
+                        Last 7 Days
+                    </a>
+                    <a href="?scope={{ scope }}&timeframe=month{% if action_filter %}&action={{ action_filter }}{% endif %}{% if q %}&q={{ q }}{% endif %}" class="btn {% if timeframe == 'month' %}btn-dark text-white fw-bold{% else %}btn-light border{% endif %}">
+                        Last 30 Days
+                    </a>
+                </div>
+            </div>
+
+            <!-- Action Channel Dropdown -->
+            <div class="col-6 col-md-3">
+                <select name="action" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">All Channels</option>
+                    {% for code, label in actions %}
+                        <option value="{{ code }}" {% if action_filter == code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Search Query -->
+            <div class="col-6 col-md flex-grow-1">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                    <input type="text" name="q" class="form-control form-control-sm border-start-0" placeholder="Search interaction notes, client, or agent..." value="{{ q }}">
+                    {% if q or action_filter or timeframe != 'all' %}
+                        <a href="?scope={{ scope }}" class="btn btn-outline-secondary btn-sm" title="Clear filters">
+                            <i class="bi bi-x-circle"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Activity Data Table -->
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-pro align-middle mb-0">
+            <thead>
+                <tr>
+                    <th style="width: 140px;">Timestamp</th>
+                    <th>Team Member</th>
+                    <th>Client Reference</th>
+                    <th>Channel</th>
+                    <th>Summary &amp; Discussion</th>
+                    <th>Outcome / Next Step</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in activities %}
+                    <tr>
+                        <td>
+                            <div class="fw-semibold text-dark small">
+                                <i class="bi bi-calendar3 me-1 text-muted"></i>{{ a.created_at|date:"M d, Y" }}
+                            </div>
+                            <small class="text-muted" style="font-size: 0.75rem;">
+                                <i class="bi bi-clock me-1"></i>{{ a.created_at|date:"H:i" }}
+                            </small>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="avatar-chip avatar-chip-blue" style="width: 30px; height: 30px; font-size: 0.8rem;">
+                                    {{ a.person.first_name|default:a.person.username|slice:":1"|upper }}
+                                </div>
+                                <div class="small fw-semibold text-dark">
+                                    {{ a.person.get_full_name|default:a.person.username }}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if a.related_client %}
+                                <a href="{% url 'contacts:edit' a.related_client.pk %}" class="fw-semibold text-primary text-decoration-none small">
+                                    <i class="bi bi-person-fill me-1"></i>{{ a.related_client.full_name }}
+                                </a>
+                                {% if a.related_client.phone %}
+                                    <div class="text-muted" style="font-size: 0.75rem;">
+                                        <a href="tel:{{ a.related_client.phone }}" class="text-muted text-decoration-none">
+                                            <i class="bi bi-telephone me-1"></i>{{ a.related_client.phone }}
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted small">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if a.action == 'CALLED' %}
+                                <span class="badge badge-soft-primary"><i class="bi bi-telephone-fill me-1"></i>Phone Call</span>
+                            {% elif a.action == 'WHATSAPP' %}
+                                <span class="badge badge-soft-success"><i class="bi bi-whatsapp me-1"></i>WhatsApp</span>
+                            {% elif a.action == 'MET' %}
+                                <span class="badge badge-soft-warning"><i class="bi bi-people-fill me-1"></i>Meeting</span>
+                            {% elif a.action == 'EMAILED' %}
+                                <span class="badge badge-soft-info"><i class="bi bi-envelope-fill me-1"></i>Email</span>
+                            {% else %}
+                                <span class="badge badge-soft-slate"><i class="bi bi-stickies-fill me-1"></i>Note</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="small text-dark fw-medium" style="max-width: 360px;">
+                                {{ a.summary }}
+                            </div>
+                        </td>
+                        <td>
+                            {% if a.outcome %}
+                                <div class="small text-secondary fw-semibold">
+                                    <i class="bi bi-arrow-right-circle text-primary me-1"></i>{{ a.outcome }}
+                                </div>
+                            {% else %}
+                                <span class="text-muted small">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <div class="my-4">
+                                <div class="stat-icon stat-icon-blue mx-auto mb-3" style="width: 60px; height: 60px; font-size: 1.8rem;">
+                                    <i class="bi bi-journal-x"></i>
+                                </div>
+                                <h5 class="fw-bold text-navy mb-1">No activities logged yet</h5>
+                                <p class="text-muted small mb-3">Begin recording client calls, WhatsApp inquiries, or meetings.</p>
+                                <a href="{% url 'activity:create' %}" class="btn btn-primary btn-sm rounded-pill px-4 fw-semibold shadow-sm">
+                                    <i class="bi bi-plus-lg me-1"></i> Log First Interaction
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Channels Doughnut Chart
+    const channelCtx = document.getElementById('channelChart');
+    if (channelCtx) {
+        new Chart(channelCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ action_labels_json|safe }},
+                datasets: [{
+                    data: {{ action_counts_json|safe }},
+                    backgroundColor: ['#2563eb', '#10b981', '#f59e0b', '#0284c7', '#94a3b8'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff',
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { boxWidth: 12, padding: 14, font: { size: 12 } }
+                    }
+                },
+                cutout: '68%'
+            }
+        });
+    }
+
+    // Velocity Trend Area Chart
+    const velocityCtx = document.getElementById('velocityChart');
+    if (velocityCtx) {
+        new Chart(velocityCtx, {
+            type: 'line',
+            data: {
+                labels: {{ date_labels_json|safe }},
+                datasets: [{
+                    label: 'Interactions',
+                    data: {{ daily_velocity_json|safe }},
+                    borderColor: '#0284c7',
+                    backgroundColor: 'rgba(2, 132, 199, 0.1)',
+                    borderWidth: 2.5,
+                    fill: true,
+                    tension: 0.35,
+                    pointBackgroundColor: '#0284c7',
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1, color: '#94a3b8' },
+                        grid: { color: 'rgba(226, 232, 240, 0.6)' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#64748b', font: { weight: '600' } }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

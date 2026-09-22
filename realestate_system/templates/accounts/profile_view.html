@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}My Profile · {{ profile_user.get_full_name|default:profile_user.username }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-2">
+    <!-- Breadcrumb & Page Title -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}" class="text-decoration-none">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">User Profile</li>
+                </ol>
+            </nav>
+            <h2 class="mb-0 text-navy fw-bold"><i class="bi bi-person-badge-fill text-primary me-2"></i>Executive Account Profile</h2>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'accounts:profile_edit' %}" class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold shadow-sm">
+                <i class="bi bi-pencil-square me-1"></i> Update Profile
+            </a>
+            <a href="{% url 'accounts:profile_delete' %}" class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-semibold">
+                <i class="bi bi-trash3 me-1"></i> Delete Account
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left Profile Identity Card -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm text-center p-4" style="border-radius: 18px;">
+                <div class="position-relative mx-auto mb-3" style="width: 110px; height: 110px;">
+                    {% if profile_user.avatar_url %}
+                        <img src="{{ profile_user.avatar_url }}" alt="{{ profile_user.username }}" class="rounded-circle shadow-sm object-fit-cover w-100 h-100 border border-3 border-primary-subtle">
+                    {% else %}
+                        <div class="w-100 h-100 rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" style="background: linear-gradient(135deg, #1b3b6f, #147d3b); font-size: 2.5rem;">
+                            {{ profile_user.initials }}
+                        </div>
+                    {% endif %}
+                    <span class="position-absolute bottom-0 end-0 p-2 bg-success border border-white rounded-circle" title="Account Active"></span>
+                </div>
+
+                <h4 class="fw-bold text-navy mb-1">{{ profile_user.get_full_name|default:profile_user.username }}</h4>
+                <div class="text-muted small mb-2">@{{ profile_user.username }}</div>
+
+                <div class="d-flex justify-content-center gap-1 mb-3 flex-wrap">
+                    <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1 fw-semibold">
+                        <i class="bi bi-briefcase me-1"></i> {{ profile_user.get_role_display|default:profile_user.role }}
+                    </span>
+                    {% if profile_user.is_superuser %}
+                        <span class="badge bg-warning-subtle text-warning-emphasis rounded-pill px-2 py-1 fw-semibold">
+                            <i class="bi bi-shield-shaded me-1"></i> Root Admin
+                        </span>
+                    {% elif profile_user.is_staff %}
+                        <span class="badge bg-info-subtle text-info-emphasis rounded-pill px-2 py-1 fw-semibold">
+                            Staff
+                        </span>
+                    {% endif %}
+                </div>
+
+                <hr class="my-3 text-secondary-subtle">
+
+                <!-- Quick info list -->
+                <div class="text-start small space-y-2">
+                    <div class="d-flex justify-content-between py-1 border-bottom border-light">
+                        <span class="text-muted"><i class="bi bi-envelope me-1"></i> Email:</span>
+                        <strong class="text-dark">{{ profile_user.email|default:"Not specified" }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between py-1 border-bottom border-light">
+                        <span class="text-muted"><i class="bi bi-telephone me-1"></i> Phone:</span>
+                        <strong class="text-dark">{{ profile_user.phone|default:"Not specified" }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between py-1 border-bottom border-light">
+                        <span class="text-muted"><i class="bi bi-calendar3 me-1"></i> Member Since:</span>
+                        <span class="text-secondary">{{ profile_user.date_joined|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-1">
+                        <span class="text-muted"><i class="bi bi-clock-history me-1"></i> Last Login:</span>
+                        <span class="text-secondary">{{ profile_user.last_login|date:"M d, Y H:i"|default:"Just now" }}</span>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-2">
+                    <a href="{% url 'accounts:profile_edit' %}" class="btn btn-outline-primary btn-sm w-100 rounded-pill">
+                        <i class="bi bi-image me-1"></i> Change Avatar / Update Details
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Account Stats & CIA Security Details -->
+        <div class="col-lg-8">
+            <!-- Account KPI Counters -->
+            <div class="row g-3 mb-4">
+                <div class="col-sm-4">
+                    <div class="card border-0 shadow-sm p-3 h-100" style="border-radius: 16px; border-left: 4px solid #1b3b6f !important;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-muted small text-uppercase fw-semibold">Assigned Tasks</div>
+                                <div class="h3 fw-bold text-navy mb-0 mt-1">{{ assigned_tasks_count }}</div>
+                            </div>
+                            <div class="stat-icon stat-icon-blue">
+                                <i class="bi bi-check2-square"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-4">
+                    <div class="card border-0 shadow-sm p-3 h-100" style="border-radius: 16px; border-left: 4px solid #147d3b !important;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-muted small text-uppercase fw-semibold">Bookings Lead</div>
+                                <div class="h3 fw-bold text-navy mb-0 mt-1">{{ assigned_bookings_count }}</div>
+                            </div>
+                            <div class="stat-icon stat-icon-green">
+                                <i class="bi bi-calendar-event"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-4">
+                    <div class="card border-0 shadow-sm p-3 h-100" style="border-radius: 16px; border-left: 4px solid #d97706 !important;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-muted small text-uppercase fw-semibold">Properties</div>
+                                <div class="h3 fw-bold text-navy mb-0 mt-1">{{ assigned_properties_count }}</div>
+                            </div>
+                            <div class="stat-icon stat-icon-amber">
+                                <i class="bi bi-building"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CIA Triad Security Protection Card -->
+            <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: 18px;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-navy mb-0">
+                        <i class="bi bi-shield-check text-success me-2"></i>CIA Blockchain Security Protection
+                    </h5>
+                    <span class="badge bg-success-subtle text-success px-3 py-1 rounded-pill fw-semibold">
+                        <i class="bi bi-check-circle-fill me-1"></i> Active Defense
+                    </span>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-3 h-100 border border-light">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="badge bg-primary text-white rounded-circle p-1" style="width:22px; height:22px; display:inline-flex; align-items:center; justify-content:center; font-size: 0.7rem;">C</span>
+                                <strong class="small text-navy">Confidentiality</strong>
+                            </div>
+                            <p class="small text-muted mb-0">
+                                Role-isolated CRM access. User actions and identity data are cryptographically protected.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-3 h-100 border border-light">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="badge bg-success text-white rounded-circle p-1" style="width:22px; height:22px; display:inline-flex; align-items:center; justify-content:center; font-size: 0.7rem;">I</span>
+                                <strong class="small text-navy">Integrity</strong>
+                            </div>
+                            <p class="small text-muted mb-0">
+                                Profile updates and media uploads are chained in immutable SHA-256 blockchain blocks.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-3 h-100 border border-light">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="badge bg-info text-white rounded-circle p-1" style="width:22px; height:22px; display:inline-flex; align-items:center; justify-content:center; font-size: 0.7rem;">A</span>
+                                <strong class="small text-navy">Availability</strong>
+                            </div>
+                            <p class="small text-muted mb-0">
+                                99.99% system availability with automated failover and secure session management.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3 pt-2 text-end">
+                    <a href="{% url 'dashboard:security' %}" class="btn btn-link btn-sm text-decoration-none fw-semibold">
+                        View Blockchain Security Center <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Danger Zone Card -->
+            <div class="card border border-danger-subtle shadow-sm p-4" style="border-radius: 18px; background: #fffcfc;">
+                <h6 class="fw-bold text-danger mb-1"><i class="bi bi-exclamation-triangle-fill me-2"></i>Account Management & Danger Zone</h6>
+                <p class="text-muted small mb-3">
+                    If you wish to terminate your profile or close your executive worker account, you can initiate permanent account deletion.
+                </p>
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+                    <span class="small text-secondary">Once deleted, your access to dashboard tools will be revoked immediately.</span>
+                    <a href="{% url 'accounts:profile_delete' %}" class="btn btn-outline-danger btn-sm rounded-pill px-3 text-nowrap">
+                        <i class="bi bi-person-x-fill me-1"></i> Delete Account
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

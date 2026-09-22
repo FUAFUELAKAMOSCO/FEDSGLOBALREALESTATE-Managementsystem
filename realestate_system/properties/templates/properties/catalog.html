@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Featured Properties &amp; Estates · {{ COMPANY_NAME }}{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h2 class="text-navy fw-bold mb-1"><i class="bi bi-buildings text-success me-2"></i>Featured Properties &amp; Titled Estates</h2>
+        <p class="text-muted mb-0">Explore premier residential estates and investment parcels managed by {{ COMPANY_NAME }}.</p>
+    </div>
+    <div class="d-flex gap-2">
+        {% if user.is_authenticated %}
+            <a href="{% url 'properties:create' %}" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold">
+                <i class="bi bi-cloud-arrow-up-fill me-1"></i> Upload Property
+            </a>
+        {% endif %}
+        <a href="{% url 'properties:landing' %}" class="btn btn-brand-green btn-sm rounded-pill px-3 shadow-sm">
+            <i class="bi bi-eye me-1"></i> View Main Landing Page
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    {% for prop in properties %}
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="estate-card h-100 d-flex flex-column">
+                <div style="height: 220px; position: relative; overflow: hidden; background: #0a192f;">
+                    <img src="{{ prop.image_url }}" alt="{{ prop.title }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    <span class="badge bg-success position-absolute top-0 start-0 m-3 px-3 py-2 fw-semibold shadow-sm">{{ prop.get_property_type_display }}</span>
+                    <span class="badge bg-dark bg-opacity-75 position-absolute bottom-0 end-0 m-3 px-3 py-2 fw-bold text-white fs-6">
+                        {{ prop.formatted_price }}
+                    </span>
+                </div>
+                <div class="card-body p-4 d-flex flex-column justify-content-between flex-grow-1">
+                    <div>
+                        <div class="text-muted small mb-1"><i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ prop.location }}</div>
+                        <h5 class="fw-bold text-navy mb-2">{{ prop.title }}</h5>
+                        <p class="text-muted small mb-3">{{ prop.subtitle|truncatewords:22 }}</p>
+                    </div>
+                    <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+                        <span class="small fw-semibold text-secondary"><i class="bi bi-bounding-box me-1"></i>{{ prop.area_display }}</span>
+                        <a href="{% url 'properties:detail' prop.slug %}" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold">
+                            View Estate <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="stat-icon stat-icon-green mx-auto mb-3" style="width: 60px; height: 60px; font-size: 1.8rem;">
+                <i class="bi bi-building-exclamation"></i>
+            </div>
+            <h5 class="fw-bold text-navy mb-1">No properties cataloged yet</h5>
+            <p class="text-muted small">Available parcels will be displayed here.</p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

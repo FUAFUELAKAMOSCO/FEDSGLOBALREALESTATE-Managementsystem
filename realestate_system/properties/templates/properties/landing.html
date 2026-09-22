@@ -1,0 +1,1335 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>{{ property.title }} · {{ COMPANY_NAME }} · Cameroon's Trusted Real Estate Firm</title>
+    <meta name="description" content="Fred's Global Real Estate — Premier land acquisitions, verified titled deeds, and diaspora property investment in Buea, Cameroon. Featuring prime property located behind Cathedral around Blue Empire.">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="{{ property.title }} · {{ COMPANY_NAME }}">
+    <meta property="og:description" content="Secure, dispute-free titled lands and residential developments in Buea, Cameroon. 400 m² titled plots from 2,000,000 FCFA.">
+    <meta property="og:image" content="{% static 'images/logo.png' %}">
+    <meta property="og:type" content="website">
+
+    <!-- Google Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --brand-green: #147d3b;
+            --brand-green-hover: #0f6630;
+            --brand-green-light: #ecfdf5;
+            --brand-green-border: #a7f3d0;
+            --brand-navy: #1b3b6f;
+            --brand-navy-dark: #0a192f;
+            --brand-navy-surface: #0f2342;
+            --brand-navy-light: #eff6ff;
+            --brand-gold: #d97706;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --border-light: #e2e8f0;
+            --shadow-sm: 0 2px 8px rgba(10, 25, 47, 0.06);
+            --shadow-md: 0 8px 24px rgba(10, 25, 47, 0.10);
+            --shadow-lg: 0 16px 40px rgba(10, 25, 47, 0.15);
+        }
+
+        html, body {
+            width: 100%;
+            max-width: 100vw;
+            overflow-x: hidden;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--text-dark);
+            background-color: #fcfdfe;
+            line-height: 1.65;
+        }
+
+        h1, h2, h3, h4, h5, h6, .brand-font {
+            font-family: 'Outfit', 'Montserrat', sans-serif;
+            font-weight: 700;
+            color: var(--brand-navy);
+            letter-spacing: -0.015em;
+        }
+
+        /* Top Announcement Bar */
+        .top-bar {
+            background-color: var(--brand-navy-dark);
+            color: #d1dbe3;
+            font-size: 0.82rem;
+            padding: 0.55rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .top-bar a {
+            color: #e2ecf3;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .top-bar a:hover {
+            color: #4ade80;
+        }
+
+        /* Sticky Glassmorphism Header */
+        .main-header {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border-light);
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+            box-shadow: 0 4px 20px rgba(10, 25, 47, 0.06);
+            padding: 0.65rem 0;
+        }
+
+        .header-logo-img {
+            height: 48px;
+            width: auto;
+            object-fit: contain;
+            transition: transform 0.2s ease;
+        }
+        .header-logo-img:hover {
+            transform: scale(1.02);
+        }
+
+        .nav-link-custom {
+            color: #334155;
+            font-weight: 600;
+            font-size: 0.925rem;
+            padding: 0.5rem 0.85rem !important;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        .nav-link-custom:hover {
+            color: var(--brand-green);
+            background-color: var(--brand-green-light);
+        }
+
+        /* Buttons */
+        .btn-brand-green {
+            background: linear-gradient(135deg, #147d3b 0%, #166534 100%);
+            color: #ffffff;
+            font-weight: 600;
+            border: none;
+            border-radius: 50px;
+            padding: 0.65rem 1.45rem;
+            box-shadow: 0 4px 14px rgba(20, 125, 59, 0.35);
+            transition: all 0.25s ease;
+        }
+        .btn-brand-green:hover {
+            background: linear-gradient(135deg, #0f6630 0%, #147d3b 100%);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(20, 125, 59, 0.45);
+        }
+
+        .btn-brand-navy {
+            background: linear-gradient(135deg, #1b3b6f 0%, #0a192f 100%);
+            color: #ffffff;
+            font-weight: 600;
+            border: none;
+            border-radius: 50px;
+            padding: 0.65rem 1.45rem;
+            box-shadow: 0 4px 14px rgba(27, 59, 111, 0.35);
+            transition: all 0.25s ease;
+        }
+        .btn-brand-navy:hover {
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(27, 59, 111, 0.45);
+        }
+
+        .btn-brand-outline-navy {
+            border: 1.5px solid var(--brand-navy);
+            color: var(--brand-navy);
+            background: transparent;
+            font-weight: 600;
+            border-radius: 50px;
+            padding: 0.55rem 1.25rem;
+            transition: all 0.2s ease;
+        }
+        .btn-brand-outline-navy:hover {
+            background-color: var(--brand-navy);
+            color: #ffffff;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(180deg, rgba(10, 25, 47, 0.82) 0%, rgba(27, 59, 111, 0.90) 100%),
+                        url("{% static 'images/hero.jpg' %}") center/cover no-repeat;
+            color: #ffffff;
+            padding: 5rem 0 4rem;
+            position: relative;
+        }
+
+        .hero-title {
+            font-size: 2.75rem;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2rem; }
+            .hero-section { padding: 3.5rem 0 3rem; }
+        }
+
+        /* Quick Search Bar */
+        .search-bar-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 1.25rem 1.5rem;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.25);
+            margin-top: 2rem;
+        }
+
+        /* Section Title */
+        .section-tag {
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--brand-green);
+            background-color: var(--brand-green-light);
+            border: 1px solid var(--brand-green-border);
+            padding: 0.35rem 0.9rem;
+            border-radius: 50px;
+            margin-bottom: 0.75rem;
+        }
+
+        .section-title {
+            font-size: 2.15rem;
+            font-weight: 800;
+            color: var(--brand-navy);
+            margin-bottom: 0.85rem;
+        }
+
+        /* Card Styles */
+        .estate-card {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .estate-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-lg);
+            border-color: rgba(20, 125, 59, 0.3);
+        }
+
+        /* Service Cards */
+        .service-card {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 2rem;
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--brand-green);
+        }
+        .service-icon-box {
+            width: 58px;
+            height: 58px;
+            border-radius: 14px;
+            background: var(--brand-green-light);
+            color: var(--brand-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.65rem;
+            margin-bottom: 1.25rem;
+        }
+
+        /* Process Steps */
+        .step-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--brand-navy);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.15rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(27, 59, 111, 0.3);
+        }
+
+        /* Floating WhatsApp */
+        .floating-whatsapp {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1050;
+            background-color: #25d366;
+            color: #ffffff;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 6px 22px rgba(37, 211, 102, 0.5);
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: pulse-wa 2.5s infinite;
+        }
+        .floating-whatsapp:hover {
+            transform: scale(1.08) translateY(-3px);
+            color: #ffffff;
+            box-shadow: 0 10px 28px rgba(37, 211, 102, 0.6);
+        }
+        @keyframes pulse-wa {
+            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.6); }
+            70% { box-shadow: 0 0 0 14px rgba(37, 211, 102, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+        }
+
+        /* Footer */
+        .site-footer {
+            background-color: var(--brand-navy-dark);
+            color: #cbd5e1;
+            padding: 4.5rem 0 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .site-footer a {
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .site-footer a:hover {
+            color: #4ade80;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 1. Top Announcement Bar -->
+<div class="top-bar">
+    <div class="container-fluid px-lg-5">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+            <div class="d-flex align-items-center flex-wrap gap-3 gap-md-4 small">
+                <span><i class="bi bi-geo-alt-fill text-success me-1"></i> Mile 18 Junction Buea</span>
+                <span class="d-none d-sm-inline"><i class="bi bi-clock-fill text-success me-1"></i> Mon - Sat: 8:00 AM – 6:00 PM</span>
+                <a href="tel:{{ COMPANY_PHONE }}"><i class="bi bi-telephone-fill text-success me-1"></i> {{ COMPANY_PHONE }}</a>
+            </div>
+            <div class="d-flex align-items-center flex-wrap gap-2 gap-md-3 small">
+                <a href="https://wa.me/237679798244?text=Hello%20Fred's%20Global%20Real%20Estate,%20I%20am%20inquiring%20about%20the%20property%20behind%20Cathedral%20around%20Blue%20Empire%20in%20Buea." target="_blank" class="fw-bold text-white d-flex align-items-center gap-1" title="Chat on WhatsApp 679798244">
+                    <i class="bi bi-whatsapp text-success fs-6"></i> <span>WhatsApp: 679 798 244</span>
+                </a>
+                <span class="text-white-50">|</span>
+                <a href="https://www.facebook.com/fredsglobalrealestate" target="_blank" class="text-white d-flex align-items-center gap-1" title="Fred's Global Real Estate on Facebook">
+                    <i class="bi bi-facebook text-info fs-6"></i> <span class="d-none d-sm-inline">Fred's Global Real Estate</span>
+                </a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard:home' %}" class="fw-semibold text-white d-flex align-items-center gap-1 text-decoration-none">
+                        <i class="bi bi-speedometer2 text-success"></i> <span>Dashboard ({{ user.username }})</span>
+                    </a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="fw-semibold text-white d-flex align-items-center gap-1 text-decoration-none">
+                        <i class="bi bi-person-lock text-info"></i> <span>Staff CRM Login</span>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 2. Sticky Glassmorphism Navigation Bar -->
+<header class="main-header">
+    <div class="container-fluid px-lg-5">
+        <nav class="navbar navbar-expand-lg navbar-light p-0">
+            <a class="navbar-brand d-flex align-items-center gap-2 p-0" href="{% url 'properties:landing' %}">
+                <img src="{% static 'images/logo.png' %}" alt="{{ COMPANY_NAME }}" class="header-logo-img">
+                <div class="d-none d-md-block lh-1 text-start">
+                    <span class="d-block fw-bold brand-font text-navy fs-5" style="letter-spacing: -0.01em;">FRED'S GLOBAL</span>
+                    <span class="text-success fw-bold text-uppercase" style="font-size: 0.68rem; letter-spacing: 0.08em;">Real Estate</span>
+                </div>
+            </a>
+
+            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNavbar">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-2 py-2 py-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom active" href="#overview">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="#flagship">Featured Property</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="#services">Our Services</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="#contact">Contact</a>
+                    </li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-2 mt-2 mt-lg-0">
+                    <a href="#schedule-visit" class="btn btn-brand-green btn-sm px-3 shadow-sm">
+                        <i class="bi bi-calendar2-check me-1"></i> Book Site Visit
+                    </a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard:home' %}" class="btn btn-brand-navy btn-sm px-3 shadow-sm">
+                            <i class="bi bi-speedometer2 me-1 text-success"></i> Dashboard
+                        </a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-brand-outline-navy btn-sm px-3">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Staff Portal
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<main id="overview">
+
+<!-- 3. Hero Section -->
+<section class="hero-section">
+    <div class="container-fluid px-lg-5">
+        <div class="row align-items-center justify-content-between g-5">
+            <div class="col-lg-7">
+                <!-- Verified Trust Badge -->
+                <div class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill mb-3" style="background: rgba(20, 125, 59, 0.25); border: 1px solid rgba(74, 222, 128, 0.4); backdrop-filter: blur(8px);">
+                    <i class="bi bi-patch-check-fill text-success fs-6"></i>
+                    <span class="text-white fw-semibold small">100% Verified Titled Lands in Buea, Cameroon</span>
+                </div>
+
+                <h1 class="hero-title mb-3">
+                    Cameroon's Most Trusted Land &amp; Real Estate Partner
+                </h1>
+                <p class="lead text-white-50 mb-4" style="max-width: 620px;">
+                    We eliminate risk in land acquisition. Legally registered titles, approved cadastral demarcation, pristine 100% level topography, and dedicated remote advisory for local and diaspora investors.
+                </p>
+
+                <!-- Hero Action Buttons -->
+                <div class="d-flex flex-wrap gap-3 mb-4">
+                    <a href="#flagship" class="btn btn-brand-green px-4 py-3 fw-bold">
+                        <i class="bi bi-compass-fill me-1"></i> Explore Cathedral / Blue Empire Land
+                    </a>
+                    <a href="https://wa.me/237679798244?text=Hello%20Fred's%20Global%20Real%20Estate,%20I%20would%20like%20to%20consult%20on%20buying%20land%20in%20Buea." target="_blank" class="btn btn-outline-light rounded-pill px-4 py-3 fw-bold d-flex align-items-center gap-2">
+                        <i class="bi bi-whatsapp text-success fs-5"></i>
+                        <span>Chat on WhatsApp</span>
+                    </a>
+                </div>
+
+                <!-- Trust Guarantees Grid -->
+                <div class="row g-3 text-white pt-3 border-top border-white border-opacity-10 small">
+                    <div class="col-6 col-sm-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-file-earmark-check-fill text-success fs-5"></i>
+                            <div>
+                                <div class="fw-bold">Titled Deeds</div>
+                                <div class="text-white-50" style="font-size: 0.72rem;">Notarized Tenure</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-pin-map-fill text-success fs-5"></i>
+                            <div>
+                                <div class="fw-bold">Boundary Pillars</div>
+                                <div class="text-white-50" style="font-size: 0.72rem;">Cadastral Survey</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-shield-lock-fill text-success fs-5"></i>
+                            <div>
+                                <div class="fw-bold">Zero Dispute</div>
+                                <div class="text-white-50" style="font-size: 0.72rem;">Chief Attestation</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-globe-americas text-success fs-5"></i>
+                            <div>
+                                <div class="fw-bold">Diaspora Escrow</div>
+                                <div class="text-white-50" style="font-size: 0.72rem;">Remote Safety</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Inquiry / Tour Booking Card inside Hero -->
+            <div class="col-lg-5 col-xl-4">
+                <div class="card border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+                    <div class="card-header py-3 text-white" style="background: linear-gradient(135deg, #147d3b 0%, #1b3b6f 100%);">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0 fw-bold"><i class="bi bi-send-fill me-2"></i>Immediate Land Consultation</h6>
+                            <span class="badge bg-white text-success fw-bold">Live Response</span>
+                        </div>
+                    </div>
+                    <div class="card-body p-4 bg-white">
+                        <form method="post" action="{% url 'properties:inquire' property.slug %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-navy mb-1">Your Full Name *</label>
+                                <input type="text" name="full_name" class="form-control" placeholder="e.g. Roland Tabot" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-navy mb-1">Country &amp; WhatsApp Phone *</label>
+                                <div class="input-group">
+                                    <select name="country_code" class="form-select" style="max-width: 110px;">
+                                        <option value="+237" selected>🇨🇲 +237</option>
+                                        <option value="+1">🇺🇸 +1</option>
+                                        <option value="+44">🇬🇧 +44</option>
+                                        <option value="+33">🇫🇷 +33</option>
+                                        <option value="+49">🇩🇪 +49</option>
+                                        <option value="+32">🇧🇪 +32</option>
+                                        <option value="+971">🇦🇪 +971</option>
+                                        <option value="OTHER">Other</option>
+                                    </select>
+                                    <input type="text" name="phone" class="form-control" placeholder="679 798 244" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-navy mb-1">Email Address *</label>
+                                <input type="email" name="email" class="form-control" placeholder="yourname@gmail.com" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-navy mb-1">Interest / Message</label>
+                                <textarea name="message" class="form-control" rows="2" placeholder="I am interested in acquiring plots located behind Cathedral around Blue Empire in Buea..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-brand-green w-100 fw-bold py-2 shadow-sm">
+                                <i class="bi bi-file-earmark-text me-1"></i> Request Pricing &amp; Site Plan
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Property Finder Filter Bar -->
+        <div class="search-bar-card text-dark">
+            <form class="row g-2 align-items-center" onsubmit="event.preventDefault(); document.getElementById('estates').scrollIntoView({behavior: 'smooth'});">
+                <div class="col-12 col-md-3">
+                    <label class="form-label small fw-bold text-navy mb-1"><i class="bi bi-building me-1 text-success"></i> Property Type</label>
+                    <select class="form-select form-select-sm border-secondary-subtle">
+                        <option selected>Residential Titled Land</option>
+                        <option>Commercial Parcels</option>
+                        <option>Agricultural Acreage / Hectares</option>
+                        <option>Turnkey Executive Villas</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label small fw-bold text-navy mb-1"><i class="bi bi-geo-alt-fill me-1 text-danger"></i> Prime Location</label>
+                    <select class="form-select form-select-sm border-secondary-subtle">
+                        <option selected>Buea - Behind Cathedral (Blue Empire)</option>
+                        <option>Buea - Mile 18 Corridor</option>
+                        <option>Buea - Molyko / Town</option>
+                        <option>Limbe Seaside Coast</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label small fw-bold text-navy mb-1"><i class="bi bi-cash-stack me-1 text-success"></i> Budget Bracket</label>
+                    <select class="form-select form-select-sm border-secondary-subtle">
+                        <option selected>2,000,000 – 5,000,000 FCFA</option>
+                        <option>5,000,000 – 15,000,000 FCFA</option>
+                        <option>15,000,000 – 50,000,000 FCFA</option>
+                        <option>Commercial Scale (Acres/Hectares)</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-3 pt-md-4">
+                    <button type="submit" class="btn btn-brand-navy w-100 fw-bold py-2 shadow-sm d-flex align-items-center justify-content-center gap-1">
+                        <i class="bi bi-search"></i> <span>Find Available Plots</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- 4. Flagship Property Launch: Behind Cathedral around Blue Empire, Buea -->
+<section id="flagship" class="py-5 bg-white">
+    <div class="container-fluid px-lg-5">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <span class="section-tag"><i class="bi bi-stars me-1"></i> Prime Property Launch</span>
+                <h2 class="section-title">Prime Property Located Behind Cathedral around Blue Empire</h2>
+                <h5 class="text-success fw-bold mb-3">Buea, South West Region, Cameroon</h5>
+                <p class="text-muted mb-4 lead fs-6">
+                    We are proudly launching the property located behind cathedral around blue empire in Buea, Cameroon. Strategically situated in Buea's fastest booming residential and investment corridor, this property offers pristine, 100% level topography with no slope complications, immediate building readiness, Whether you are seeking a premier site for your executive family villa, modern duplexes, or high-yield land banking, Fred's Global Real Estate guarantees legally secured tenure with transparent documentation.
+                </p>
+
+                <!-- Core Value Metrics -->
+                <div class="row g-3 mb-4">
+                    <div class="col-6">
+                        <div class="p-3 rounded-3 border bg-light">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <i class="bi bi-bounding-box-circles text-success fs-4"></i>
+                                <span class="fw-bold text-navy">Plot Size</span>
+                            </div>
+                            <div class="h5 fw-bold text-dark mb-0">{{ property.area_display }}</div>
+                            <small class="text-muted">Acres &amp; Hectares available</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 rounded-3 border bg-light">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <i class="bi bi-tag-fill text-success fs-4"></i>
+                                <span class="fw-bold text-navy">Starting Price</span>
+                            </div>
+                            <div class="h5 fw-bold text-success mb-0">{{ property.formatted_price }}</div>
+                            <small class="text-muted">{{ property.price_suffix }}</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 rounded-3 border bg-light">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <i class="bi bi-layers-fill text-primary fs-4"></i>
+                                <span class="fw-bold text-navy">Topography</span>
+                            </div>
+                            <div class="h5 fw-bold text-dark mb-0">100% Flat &amp; Level</div>
+                            <small class="text-muted">Zero excavation costs needed</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 rounded-3 border bg-light">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <i class="bi bi-patch-check-fill text-primary fs-4"></i>
+                                <span class="fw-bold text-navy">Title Status</span>
+                            </div>
+                            <div class="h5 fw-bold text-primary mb-0">Notary Titled</div>
+                            <small class="text-muted">Chief attestation &amp; site plan</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Verified Documents List -->
+                <div class="mb-4">
+                    <h6 class="fw-bold text-navy mb-2"><i class="bi bi-folder-check text-success me-2"></i>Certified Title Documentation Included:</h6>
+                    <ul class="list-unstyled mb-0 d-flex flex-column gap-2 small">
+                        {% for doc in property.documents %}
+                            <li class="d-flex align-items-center gap-2 text-dark">
+                                <i class="bi bi-check-circle-fill text-success"></i>
+                                <span><strong>{{ doc.name }}</strong> — {{ doc.desc }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="#schedule-visit" class="btn btn-brand-green px-4 py-2 fw-bold">
+                        <i class="bi bi-calendar2-check me-1"></i> Book Guided Site Tour
+                    </a>
+                    <a href="https://wa.me/237679798244?text=Hello%20Fred's%20Global%20Real%20Estate,%20please%20send%20me%20the%20official%20site%20layout%20plan%20for%20the%20property%20behind%20Cathedral%20around%20Blue%20Empire." target="_blank" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold">
+                        <i class="bi bi-file-earmark-pdf me-1"></i> Request Cadastral Plan PDF
+                    </a>
+                </div>
+            </div>
+
+            <!-- Imagery Showcase -->
+            <div class="col-lg-6">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <div class="rounded-4 overflow-hidden shadow-md position-relative" style="height: 320px;">
+                            <img src="{% static 'images/hero.jpg' %}" alt="Cathedral View Prime Property" style="width: 100%; height: 100%; object-fit: cover;">
+                            <span class="badge bg-success position-absolute top-0 start-0 m-3 px-3 py-2 fw-bold shadow-sm">
+                                <i class="bi bi-geo-alt-fill me-1"></i> Behind Cathedral, Blue Empire, Buea
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="rounded-4 overflow-hidden shadow-sm" style="height: 180px;">
+                            <img src="{% static 'images/plots.jpg' %}" alt="Demarcated Plots" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="rounded-4 overflow-hidden shadow-sm" style="height: 180px;">
+                            <img src="{% static 'images/villas.jpg' %}" alt="Architectural Potential" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 5. Core Ecosystem & Divisions -->
+<section id="services" class="py-5" style="background-color: #f8fafc;">
+    <div class="container-fluid px-lg-5">
+        <div class="text-center max-w-700 mx-auto mb-5" style="max-width: 680px;">
+            <span class="section-tag"><i class="bi bi-buildings-fill me-1"></i> Integrated Services</span>
+            <h2 class="section-title">The Fred's Global Real Estate Ecosystem</h2>
+            <p class="text-muted">
+                From title verification and land acquisition to diaspora proxy management and turnkey building construction, we provide end-to-end real estate solutions in Cameroon.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Division 1 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="service-card shadow-sm">
+                    <div class="service-icon-box">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <h5 class="fw-bold text-navy mb-2">1. Titled Land Sales &amp; Acquisition</h5>
+                    <p class="text-muted small mb-3">
+                        Every parcel in our portfolio is thoroughly surveyed, boundary-demarcated with concrete pillars, and supported by authentic royal customary blessing and notary deed assignment.
+                    </p>
+                    <ul class="list-unstyled small text-secondary d-flex flex-column gap-1 mb-0">
+                        <li><i class="bi bi-check2 text-success me-1"></i> 100% dispute-free land tenure</li>
+                        <li><i class="bi bi-check2 text-success me-1"></i> Prime growth residential corridors</li>
+                        <li><i class="bi bi-check2 text-success me-1"></i> Commercial hectares &amp; plots</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Division 2 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="service-card shadow-sm">
+                    <div class="service-icon-box" style="background: var(--brand-navy-light); color: var(--brand-navy);">
+                        <i class="bi bi-airplane-engines-fill"></i>
+                    </div>
+                    <h5 class="fw-bold text-navy mb-2">2. Diaspora Advisory &amp; Concierge</h5>
+                    <p class="text-muted small mb-3">
+                        Tailored specifically for Cameroonians in the US, UK, Europe, Canada, and UAE. Buy land back home with zero family friction, remote video tours, and verified escrow milestone payments.
+                    </p>
+                    <ul class="list-unstyled small text-secondary d-flex flex-column gap-1 mb-0">
+                        <li><i class="bi bi-check2 text-success me-1"></i> Legal Power of Attorney execution</li>
+                        <li><i class="bi bi-check2 text-success me-1"></i> Live WhatsApp drone walkthroughs</li>
+                        <li><i class="bi bi-check2 text-success me-1"></i> Transparent escrow account</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Division 3 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="service-card shadow-sm">
+                    <div class="service-icon-box" style="background: #fffbeb; color: #d97706;">
+                        <i class="bi bi-tools"></i>
+                    </div>
+                    <h5 class="fw-bold text-navy mb-2">3. Architectural Design &amp; Construction</h5>
+                    <p class="text-muted small mb-3">
+                        Build your dream home in Buea with our experienced architectural and civil engineering team. We deliver contemporary duplexes, villas, and commercial rentals from foundation to turnkey handover.
+                    </p>
+                    <ul class="list-unstyled small text-secondary d-flex flex-column gap-1 mb-0">
+                        <li><i class="bi bi-check2 text-success me-1"></i> Council building permit processing</li>
+                        <li><i class="bi bi-check2 text-success me-1"></i> Modern 3D architectural renders</li>
+                        <li><i class="bi bi-check2 text-success me-1"></i> Milestone contract billing</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Division 4 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="service-card shadow-sm">
+                    <div class="service-icon-box" style="background: #fdf2f8; color: #db2777;">
+                        <i class="bi bi-pin-map"></i>
+                    </div>
+                    <h5 class="fw-bold text-navy mb-2">4. Cadastral Survey &amp; Titling</h5>
+                    <p class="text-muted small mb-3">
+                        Partnering with certified land surveyors and the Ministry of State Property, Surveys and Land Tenure (MINDCAF) to demarcate perimeter coordinates and secure official land titles.
+                    </p>
+                    <ul class="list-unstyled small text-secondary d-flex flex-column gap-1 mb-0">
+                        <li><i class="bi bi-check2 text-success me-1"></i> Official cadastral layout plans</li>
+                        <li><i class="bi bi-check2 text-success me-1"></i> Permanent concrete survey pillars</li>
+                        <li><i class="bi bi-check2 text-success me-1"></i> Registered Land Certificate delivery</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Division 5 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="service-card shadow-sm">
+                    <div class="service-icon-box" style="background: #f5f3ff; color: #7c3aed;">
+                        <i class="bi bi-key-fill"></i>
+                    </div>
+                    <h5 class="fw-bold text-navy mb-2">5. Property &amp; Asset Management</h5>
+                    <p class="text-muted small mb-3">
+                        Maximize your rental yield and protect your physical assets while living in Douala, Yaoundé, or abroad. We manage tenant vetting, rent collection, and maintenance.
+                    </p>
+                    <ul class="list-unstyled small text-secondary d-flex flex-column gap-1 mb-0">
+                        <li><i class="bi bi-check2 text-success me-1"></i> Rigorous tenant screening</li>
+                        <li><i class="bi bi-check2 text-success me-1"></i> Timely rental remittances</li>
+                        <li><i class="bi bi-check2 text-success me-1"></i> Quarterly asset inspection audits</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Division 6 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="service-card shadow-sm">
+                    <div class="service-icon-box" style="background: #eff6ff; color: #0284c7;">
+                        <i class="bi bi-graph-up-arrow"></i>
+                    </div>
+                    <h5 class="fw-bold text-navy mb-2">6. Commercial Advisory &amp; Land Banking</h5>
+                    <p class="text-muted small mb-3">
+                        Strategic land banking opportunities in Buea's fastest appreciating corridors. High returns on capital investment for institutional groups, cooperatives, and private investors.
+                    </p>
+                    <ul class="list-unstyled small text-secondary d-flex flex-column gap-1 mb-0">
+                        <li><i class="bi bi-check2 text-success me-1"></i> High capital appreciation zones</li>
+                        <li><i class="bi bi-check2 text-success me-1"></i> Bulk hectare packages</li>
+                        <li><i class="bi bi-check2 text-success me-1"></i> Comprehensive ROI feasibility studies</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 6. 4-Step Legal Due Diligence & Title Guarantee -->
+<section id="due-diligence" class="py-5 bg-white">
+    <div class="container-fluid px-lg-5">
+        <div class="text-center max-w-700 mx-auto mb-5" style="max-width: 680px;">
+            <span class="section-tag"><i class="bi bi-shield-lock-fill me-1"></i> Legal Security</span>
+            <h2 class="section-title">Our 4-Step Title &amp; Due Diligence Guarantee</h2>
+            <p class="text-muted">
+                In Cameroon, land security depends on rigorous documentation. Here is how Fred's Global Real Estate guarantees unencumbered ownership for every single client.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Step 1 -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="p-4 rounded-4 border h-100 bg-light position-relative">
+                    <div class="step-circle">01</div>
+                    <h5 class="fw-bold text-navy mb-2">Chief Attestation</h5>
+                    <p class="text-muted small mb-0">
+                        Customary and traditional council endorsement from the recognized local authority in Buea, guaranteeing authentic ancestral pedigree without chieftaincy contestations.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="p-4 rounded-4 border h-100 bg-light position-relative">
+                    <div class="step-circle" style="background: var(--brand-green);">02</div>
+                    <h5 class="fw-bold text-navy mb-2">Cadastral Demarcation</h5>
+                    <p class="text-muted small mb-0">
+                        Licensed cadastral surveyors map GPS coordinates and plant permanent concrete boundary pillars, creating an approved Master Layout Site Plan registered with local municipal authorities.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="p-4 rounded-4 border h-100 bg-light position-relative">
+                    <div class="step-circle">03</div>
+                    <h5 class="fw-bold text-navy mb-2">Notarized Deed of Transfer</h5>
+                    <p class="text-muted small mb-0">
+                        Execution of the official Deed of Assignment by a certified Notary Public in Buea, establishing an irrevocable, legally binding record of transfer between vendor and purchaser.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="p-4 rounded-4 border h-100 bg-light position-relative">
+                    <div class="step-circle" style="background: var(--brand-green);">04</div>
+                    <h5 class="fw-bold text-navy mb-2">Registered Land Title</h5>
+                    <p class="text-muted small mb-0">
+                        Submission and issuance of the official Land Certificate (<em>Titre Foncier</em>) through the regional Land Registry, giving you complete, unassailable freehold rights.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-5 p-4 rounded-4 text-white text-center shadow-sm" style="background: linear-gradient(135deg, #0a192f 0%, #1b3b6f 100%);">
+            <h4 class="fw-bold mb-2 brand-font">Need Legal Document Verification on Existing Land?</h4>
+            <p class="text-white-50 small mb-3 mx-auto" style="max-width: 600px;">
+                Our in-house legal team reviews title deeds, cadastral plans, and cadastral extracts for buyers in Cameroon and overseas.
+            </p>
+            <a href="https://wa.me/237679798244?text=Hello%20Fred's%20Global%20Real%20Estate,%20I%20would%20like%20document%20verification%20assistance." target="_blank" class="btn btn-brand-green fw-bold px-4 py-2">
+                <i class="bi bi-shield-check me-1"></i> Speak with our Legal Surveyor
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- 7. Available Estates & Parcels Portfolio -->
+<section id="estates" class="py-5" style="background-color: #f8fafc;">
+    <div class="container-fluid px-lg-5">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-5 gap-3">
+            <div>
+                <span class="section-tag"><i class="bi bi-geo-alt-fill me-1"></i> Featured Properties</span>
+                <h2 class="section-title mb-0">Premier Estates &amp; Parcels in Cameroon</h2>
+            </div>
+            <div>
+                <a href="{% url 'properties:catalog' %}" class="btn btn-brand-outline-navy fw-semibold">
+                    View Complete Catalog ({{ other_properties.count|add:1 }}) <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Property 1: Behind Cathedral around Blue Empire (Primary) -->
+            <div class="col-md-6 col-lg-4">
+                <div class="estate-card h-100 d-flex flex-column">
+                    <div style="height: 230px; position: relative; overflow: hidden; background: #0a192f;">
+                        <img src="{% static 'images/hero.jpg' %}" alt="Prime Property Behind Cathedral" style="width: 100%; height: 100%; object-fit: cover;">
+                        <span class="badge bg-success position-absolute top-0 start-0 m-3 px-3 py-2 fw-bold shadow-sm">
+                            <i class="bi bi-patch-check-fill me-1"></i> Ready for Construction
+                        </span>
+                        <span class="badge bg-dark bg-opacity-75 position-absolute bottom-0 end-0 m-3 px-3 py-2 fw-bold text-white fs-6">
+                            2 000 000 FCFA
+                        </span>
+                    </div>
+                    <div class="p-4 d-flex flex-column justify-content-between flex-grow-1">
+                        <div>
+                            <div class="text-muted small mb-1"><i class="bi bi-geo-alt-fill text-danger me-1"></i> Behind Cathedral around Blue Empire, Buea</div>
+                            <h5 class="fw-bold text-navy mb-2">Behind Cathedral Prime Land</h5>
+                            <p class="text-muted small mb-3">
+                                400 m² titled plots with 100% level topography, zero slope complications, and immediate building readiness.
+                            </p>
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <span class="badge badge-soft-success small">Titled Land</span>
+                                <span class="badge badge-soft-primary small">Level Topography</span>
+                                <span class="badge badge-soft-slate small">Behind Cathedral</span>
+                            </div>
+                        </div>
+                        <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+                            <span class="small fw-semibold text-secondary"><i class="bi bi-bounding-box me-1"></i> 400 m² Titled</span>
+                            <a href="#schedule-visit" class="btn btn-sm btn-brand-green px-3 fw-bold">
+                                Book Visit <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Property 2: Limbe Seaside Coast -->
+            <div class="col-md-6 col-lg-4">
+                <div class="estate-card h-100 d-flex flex-column">
+                    <div style="height: 230px; position: relative; overflow: hidden; background: #0a192f;">
+                        <img src="{% static 'images/plots.jpg' %}" alt="Limbe Seaside Residential" style="width: 100%; height: 100%; object-fit: cover;">
+                        <span class="badge bg-primary position-absolute top-0 start-0 m-3 px-3 py-2 fw-bold shadow-sm">
+                            Seaside Residential
+                        </span>
+                        <span class="badge bg-dark bg-opacity-75 position-absolute bottom-0 end-0 m-3 px-3 py-2 fw-bold text-white fs-6">
+                            4 500 000 FCFA
+                        </span>
+                    </div>
+                    <div class="p-4 d-flex flex-column justify-content-between flex-grow-1">
+                        <div>
+                            <div class="text-muted small mb-1"><i class="bi bi-geo-alt-fill text-danger me-1"></i> Limbe Coastal Corridor</div>
+                            <h5 class="fw-bold text-navy mb-2">Limbe Coastal View Parcel</h5>
+                            <p class="text-muted small mb-3">
+                                Ocean-view residential plots ideal for vacation homes, holiday rentals, and diaspora retirement residences.
+                            </p>
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <span class="badge badge-soft-primary small">Ocean Air</span>
+                                <span class="badge badge-soft-success small">High Yield Rental</span>
+                            </div>
+                        </div>
+                        <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+                            <span class="small fw-semibold text-secondary"><i class="bi bi-bounding-box me-1"></i> 500 m² Plot</span>
+                            <a href="#schedule-visit" class="btn btn-sm btn-brand-navy px-3 fw-bold">
+                                Inquire Now <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Property 3: Executive Villa Development -->
+            <div class="col-md-6 col-lg-4">
+                <div class="estate-card h-100 d-flex flex-column">
+                    <div style="height: 230px; position: relative; overflow: hidden; background: #0a192f;">
+                        <img src="{% static 'images/villas.jpg' %}" alt="Buea Executive Villas" style="width: 100%; height: 100%; object-fit: cover;">
+                        <span class="badge bg-warning text-dark position-absolute top-0 start-0 m-3 px-3 py-2 fw-bold shadow-sm">
+                            Turnkey Villa Project
+                        </span>
+                        <span class="badge bg-dark bg-opacity-75 position-absolute bottom-0 end-0 m-3 px-3 py-2 fw-bold text-white fs-6">
+                            Custom Quote
+                        </span>
+                    </div>
+                    <div class="p-4 d-flex flex-column justify-content-between flex-grow-1">
+                        <div>
+                            <div class="text-muted small mb-1"><i class="bi bi-geo-alt-fill text-danger me-1"></i> Buea Town Residential Area</div>
+                            <h5 class="fw-bold text-navy mb-2">Mount View Executive Duplexes</h5>
+                            <p class="text-muted small mb-3">
+                                Complete architectural design and build project with 4 en-suite bedrooms, private garden, and perimeter fence.
+                            </p>
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <span class="badge badge-soft-purple small">Turnkey Build</span>
+                                <span class="badge badge-soft-success small">Gated Security</span>
+                            </div>
+                        </div>
+                        <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+                            <span class="small fw-semibold text-secondary"><i class="bi bi-building me-1"></i> 4 Beds · 5 Baths</span>
+                            <a href="#schedule-visit" class="btn btn-sm btn-brand-green px-3 fw-bold">
+                                Build With Us <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 8. Diaspora Investor Concierge Desk -->
+<section id="diaspora" class="py-5 text-white" style="background: linear-gradient(135deg, #0a192f 0%, #1b3b6f 100%);">
+    <div class="container-fluid px-lg-5">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <span class="badge mb-3 px-3 py-2" style="background: rgba(20, 125, 59, 0.35); border: 1px solid #4ade80; color: #4ade80;">
+                    <i class="bi bi-shield-check me-1"></i> Dedicated Diaspora Advisory Desk
+                </span>
+                <h2 class="section-title text-white">Investing in Cameroon While Living Abroad</h2>
+                <p class="text-white-50 mb-4 lead">
+                    We understand the challenges faced by Cameroonians abroad: unverified land sales, family disputes, and lost savings. Fred's Global Real Estate is your institutional corporate proxy.
+                </p>
+
+                <div class="d-flex flex-column gap-3 mb-4">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="p-2 rounded-3 bg-success bg-opacity-25 text-success fs-5">
+                            <i class="bi bi-camera-video-fill"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1">Live WhatsApp Video &amp; Drone Inspections</h6>
+                            <p class="text-white-50 small mb-0">Walk the boundary perimeter and inspect road access in real-time from anywhere in the world.</p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="p-2 rounded-3 bg-primary bg-opacity-25 text-info fs-5">
+                            <i class="bi bi-bank2"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1">Direct Bank &amp; Escrow Milestone Transfers</h6>
+                            <p class="text-white-50 small mb-0">Transparent corporate accounts in Cameroon without relying on untraceable informal cash channels.</p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="p-2 rounded-3 bg-warning bg-opacity-25 text-warning fs-5">
+                            <i class="bi bi-file-earmark-lock2-fill"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1">Notary Representation via Power of Attorney</h6>
+                            <p class="text-white-50 small mb-0">Deeds of assignment and title certificates executed with certified notaries in your legal name.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="https://wa.me/237679798244?text=Hello%20Fred's%20Global%20Real%20Estate,%20I%20am%20calling/writing%20from%20the%20diaspora%20and%20need%20advisory%20on%20buying%20land." target="_blank" class="btn btn-brand-green px-4 py-3 fw-bold shadow-lg">
+                    <i class="bi bi-whatsapp me-1"></i> Connect with Our Diaspora Desk
+                </a>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="p-4 p-md-5 rounded-4 bg-white text-dark shadow-lg">
+                    <h4 class="fw-bold text-navy mb-3"><i class="bi bi-chat-heart-fill text-danger me-2"></i>What Our Diaspora Clients Say</h4>
+                    
+                    <div class="mb-4 pb-3 border-bottom">
+                        <div class="d-flex text-warning mb-2 small">
+                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                        </div>
+                        <p class="text-muted small fst-italic">
+                            "Buying land back home was always something I feared because of past stories from friends. Fred's Global Real Estate took care of everything from UK. I had live video tours of the property behind Cathedral around Blue Empire, the notary documents were couriered to London, and my boundary pillars are firmly grounded."
+                        </p>
+                        <div class="fw-bold text-navy small">Engr. Collins Enow</div>
+                        <small class="text-muted">Civil Engineer · London, United Kingdom</small>
+                    </div>
+
+                    <div>
+                        <div class="d-flex text-warning mb-2 small">
+                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                        </div>
+                        <p class="text-muted small fst-italic">
+                            "The 100% flat topography behind Cathedral around Blue Empire made it so easy to start our duplex construction immediately. The Chief attestation and cadastral survey were verified before I sent a single dollar."
+                        </p>
+                        <div class="fw-bold text-navy small">Dr. Brenda Agbor</div>
+                        <small class="text-muted">Healthcare Executive · Maryland, USA</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 9. Regional Proximity & Driving Times Guide -->
+<section class="py-5 bg-white">
+    <div class="container-fluid px-lg-5">
+        <div class="text-center max-w-700 mx-auto mb-5" style="max-width: 680px;">
+            <span class="section-tag"><i class="bi bi-compass me-1"></i> Strategic Location</span>
+            <h2 class="section-title">Strategic Proximity in Buea, Cameroon</h2>
+            <p class="text-muted">
+                The property sits in Buea's prime expansion corridor behind Cathedral around Blue Empire, with direct road access to key educational, administrative, and transport hubs.
+            </p>
+        </div>
+
+        <div class="row g-4 text-center">
+            <div class="col-6 col-md-3">
+                <div class="p-4 rounded-4 border bg-light h-100 card-hover">
+                    <i class="bi bi-mortarboard-fill text-primary display-5 mb-2"></i>
+                    <h5 class="fw-bold text-navy mb-1">7 Mins</h5>
+                    <div class="fw-semibold text-dark small">Mt Carmel College</div>
+                    <small class="text-muted">Neighborhood anchor institution</small>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <div class="p-4 rounded-4 border bg-light h-100 card-hover">
+                    <i class="bi bi-signpost-2-fill text-success display-5 mb-2"></i>
+                    <h5 class="fw-bold text-navy mb-1">12 Mins</h5>
+                    <div class="fw-semibold text-dark small">Mile 18 Junction</div>
+                    <small class="text-muted">Direct Douala-Buea Highway</small>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <div class="p-4 rounded-4 border bg-light h-100 card-hover">
+                    <i class="bi bi-bus-front-fill text-warning display-5 mb-2"></i>
+                    <h5 class="fw-bold text-navy mb-1">17 Mins</h5>
+                    <div class="fw-semibold text-dark small">Mile 17 Motor Park</div>
+                    <small class="text-muted">Central transport &amp; commerce hub</small>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <div class="p-4 rounded-4 border bg-light h-100 card-hover">
+                    <i class="bi bi-buildings-fill text-info display-5 mb-2"></i>
+                    <h5 class="fw-bold text-navy mb-1">20 Mins</h5>
+                    <div class="fw-semibold text-dark small">Buea Town &amp; UB</div>
+                    <small class="text-muted">Ministries, banks, UB campus</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 10. Interactive Site Visit Booking & Contact Form -->
+<section id="schedule-visit" class="py-5" style="background-color: #f8fafc;">
+    <div class="container-fluid px-lg-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-xl-9">
+                <div class="text-center max-w-700 mx-auto mb-4">
+                    <span class="section-tag"><i class="bi bi-calendar2-check-fill me-1"></i> Guided Inspection</span>
+                    <h2 class="section-title">Schedule an On-Site Guided Visit</h2>
+                    <p class="text-muted">
+                        Join our weekend inspection shuttles from Buea town or book a personalized 1-on-1 walkthrough of the property located behind Cathedral around Blue Empire with a senior land surveyor.
+                    </p>
+                </div>
+
+                <div class="card border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+                    <div class="card-header bg-white p-4 border-bottom">
+                        <ul class="nav nav-pills nav-fill gap-2" id="formTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active fw-bold py-2 rounded-pill" id="visit-tab" data-bs-toggle="pill" data-bs-target="#visit-pane" type="button" role="tab">
+                                    <i class="bi bi-calendar-check me-1"></i> Book Guided Site Visit
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-bold py-2 rounded-pill" id="inquire-tab" data-bs-toggle="pill" data-bs-target="#inquire-pane" type="button" role="tab">
+                                    <i class="bi bi-chat-dots me-1"></i> General Land Inquiry
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="card-body p-4 p-md-5">
+                        <div class="tab-content" id="formTabsContent">
+                            <!-- Tab 1: Book Visit Form -->
+                            <div class="tab-pane fade show active" id="visit-pane" role="tabpanel">
+                                <form method="post" action="{% url 'properties:book_visit' property.slug %}">
+                                    {% csrf_token %}
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-bold text-navy">Full Legal Name *</label>
+                                            <input type="text" name="full_name" class="form-control" placeholder="e.g. Marie Claire" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-bold text-navy">WhatsApp / Phone Number *</label>
+                                            <input type="text" name="phone" class="form-control" placeholder="+237 671 223 344" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-bold text-navy">Email Address (Optional)</label>
+                                            <input type="email" name="email" class="form-control" placeholder="marie@example.com">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-bold text-navy">Inspection Modality</label>
+                                            <select name="visit_type" class="form-select">
+                                                <option value="SITE_VISIT" selected>On-Site Guided Walkthrough (Buea Shuttle)</option>
+                                                <option value="MEETING">Buea Office Consultation First</option>
+                                                <option value="CALL">Virtual WhatsApp Video Inspection (Diaspora)</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-bold text-navy">Preferred Date *</label>
+                                            <input type="date" name="visit_date" class="form-control" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-bold text-navy">Preferred Time *</label>
+                                            <input type="time" name="visit_time" class="form-control" value="10:00" required>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label small fw-bold text-navy">Special Requests or Transportation Pickup</label>
+                                            <textarea name="notes" class="form-control" rows="2" placeholder="e.g. Requesting pickup at Mile 17, 3 attendees coming..."></textarea>
+                                        </div>
+                                        <div class="col-12 text-center pt-3">
+                                            <button type="submit" class="btn btn-brand-green btn-lg px-5 fw-bold shadow-sm">
+                                                <i class="bi bi-calendar2-check me-1"></i> Confirm Appointment Booking
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- Tab 2: Inquiry Form -->
+                            <div class="tab-pane fade" id="inquire-pane" role="tabpanel">
+                                <form method="post" action="{% url 'properties:inquire' property.slug %}">
+                                    {% csrf_token %}
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-bold text-navy">Your Full Name *</label>
+                                            <input type="text" name="full_name" class="form-control" placeholder="e.g. David Ndip" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-bold text-navy">Email Address *</label>
+                                            <input type="email" name="email" class="form-control" placeholder="david@example.com" required>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label small fw-bold text-navy">Country Code *</label>
+                                            <select name="country_code" class="form-select">
+                                                <option value="+237" selected>Cameroon (+237)</option>
+                                                <option value="+1">USA / Canada (+1)</option>
+                                                <option value="+44">UK (+44)</option>
+                                                <option value="+33">France (+33)</option>
+                                                <option value="+49">Germany (+49)</option>
+                                                <option value="+32">Belgium (+32)</option>
+                                                <option value="+971">UAE (+971)</option>
+                                                <option value="OTHER">Other Country</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <label class="form-label small fw-bold text-navy">WhatsApp / Phone Number *</label>
+                                            <input type="text" name="phone" class="form-control" placeholder="679 798 244" required>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label small fw-bold text-navy">Detailed Inquiry Message *</label>
+                                            <textarea name="message" class="form-control" rows="3" placeholder="Tell us what size of plot or commercial parcel you require..." required></textarea>
+                                        </div>
+                                        <div class="col-12 text-center pt-3">
+                                            <button type="submit" class="btn btn-brand-navy btn-lg px-5 fw-bold shadow-sm">
+                                                <i class="bi bi-send-fill me-1"></i> Send Official Inquiry
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<!-- 11. Corporate Footer -->
+<footer id="contact" class="site-footer">
+    <div class="container-fluid px-lg-5">
+        <div class="row g-5">
+            <!-- Col 1: Brand Info -->
+            <div class="col-lg-4">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <img src="{% static 'images/logo.png' %}" alt="{{ COMPANY_NAME }}" style="height: 48px; background:#fff; padding:3px 6px; border-radius:8px;">
+                    <div>
+                        <div class="fw-bold text-white fs-5 brand-font">FRED'S GLOBAL</div>
+                        <small class="text-success text-uppercase fw-bold" style="font-size:0.7rem; letter-spacing:0.08em;">Real Estate &amp; Advisory</small>
+                    </div>
+                </div>
+                <p class="small text-white-50 mb-3">
+                    {{ COMPANY_NAME }} is a premier Cameroonian real estate and land advisory corporation. We provide verified, litigation-free titled land acquisitions, cadastral demarcation, and diaspora asset management.
+                </p>
+                <div class="d-flex gap-2">
+                    <a href="https://wa.me/237679798244" target="_blank" class="btn btn-sm btn-outline-light rounded-circle" style="width: 36px; height: 36px; display:inline-flex; align-items:center; justify-content:center;" title="WhatsApp: 679798244">
+                        <i class="bi bi-whatsapp"></i>
+                    </a>
+                    <a href="https://www.facebook.com/fredsglobalrealestate" target="_blank" class="btn btn-sm btn-outline-light rounded-circle" style="width: 36px; height: 36px; display:inline-flex; align-items:center; justify-content:center;" title="Fred's Global Real Estate on Facebook" aria-label="Facebook: Fred's Global Real Estate">
+                        <i class="bi bi-facebook"></i>
+                    </a>
+                    <a href="#" class="btn btn-sm btn-outline-light rounded-circle" style="width: 36px; height: 36px; display:inline-flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-linkedin"></i>
+                    </a>
+                    <a href="#" class="btn btn-sm btn-outline-light rounded-circle" style="width: 36px; height: 36px; display:inline-flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-youtube"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Col 2: Quick Links -->
+            <div class="col-6 col-lg-2">
+                <h6 class="text-white fw-bold text-uppercase small mb-3">Our Estates</h6>
+                <ul class="list-unstyled small d-flex flex-column gap-2 mb-0">
+                    <li><a href="#flagship">Behind Cathedral Land</a></li>
+                    <li><a href="#flagship">Blue Empire Property</a></li>
+                    <li><a href="#estates">Limbe Coastal Parcels</a></li>
+                    <li><a href="#estates">Mile 14 Commercial Hub</a></li>
+                    <li><a href="{% url 'properties:catalog' %}">All Properties</a></li>
+                </ul>
+            </div>
+
+            <!-- Col 3: Services -->
+            <div class="col-6 col-lg-3">
+                <h6 class="text-white fw-bold text-uppercase small mb-3">Core Divisions</h6>
+                <ul class="list-unstyled small d-flex flex-column gap-2 mb-0">
+                    <li><a href="#services">Titled Land Sales</a></li>
+                    <li><a href="#diaspora">Diaspora Investor Desk</a></li>
+                    <li><a href="#services">Turnkey Villa Construction</a></li>
+                    <li><a href="#due-diligence">Notary Deed Execution</a></li>
+                    <li><a href="#services">Cadastral Boundary Survey</a></li>
+                    <li><a href="{% url 'login' %}" class="text-success fw-bold">Employee / Worker Portal</a></li>
+                </ul>
+            </div>
+
+            <!-- Col 4: Contact Info -->
+            <div class="col-lg-3">
+                <h6 class="text-white fw-bold text-uppercase small mb-3">Buea Head Office</h6>
+                <ul class="list-unstyled small d-flex flex-column gap-2 mb-3 text-white-50">
+                    <li><i class="bi bi-geo-alt text-success me-2"></i> {{ COMPANY_LOCATION }}</li>
+                    <li><i class="bi bi-telephone text-success me-2"></i> <a href="tel:{{ COMPANY_PHONE }}">{{ COMPANY_PHONE }}</a></li>
+                    <li><i class="bi bi-whatsapp text-success me-2"></i> <a href="https://wa.me/237679798244" target="_blank">+237 679 798 244</a></li>
+                    <li><i class="bi bi-facebook text-primary me-2"></i> <a href="https://www.facebook.com/fredsglobalrealestate" target="_blank">Fred's Global Real Estate</a></li>
+                    <li><i class="bi bi-envelope text-success me-2"></i> <a href="mailto:{{ COMPANY_EMAIL }}">{{ COMPANY_EMAIL }}</a></li>
+                    <li><i class="bi bi-clock text-success me-2"></i> Monday – Saturday: 8 AM – 6 PM</li>
+                </ul>
+                <a href="{% url 'login' %}" class="btn btn-sm btn-outline-success w-100 rounded-pill fw-semibold">
+                    <i class="bi bi-shield-lock me-1"></i> Staff System Access
+                </a>
+            </div>
+        </div>
+
+        <div class="pt-4 mt-5 border-top border-white border-opacity-10 d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 small text-white-50">
+            <div>
+                &copy; {% now "Y" %} <strong>{{ COMPANY_NAME }}</strong>. All rights reserved. Cameroon Land Reg. RC/BUA/2020.
+            </div>
+            <div>
+                <span>Secured Land Acquisition</span> &middot; <span>Notarized Titles</span> &middot; <span>Diaspora Advisory</span>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- 12. Floating WhatsApp Consultation Button for Mobile & Desktop -->
+<a href="https://wa.me/237679798244?text=Hello%20Fred's%20Global%20Real%20Estate,%20I%20am%20interested%20in%20visiting%20the%20property%20behind%20Cathedral%20around%20Blue%20Empire." target="_blank" class="floating-whatsapp" title="Chat with Land Advisor on WhatsApp">
+    <i class="bi bi-whatsapp"></i>
+</a>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

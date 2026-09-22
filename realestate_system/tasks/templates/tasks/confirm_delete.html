@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Delete Task{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold text-danger">
+                    <i class="bi bi-trash3-fill me-2"></i>Remove Task
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <p class="text-muted">
+                    Are you sure you want to permanently delete the task <strong>"{{ task.title }}"</strong>?
+                </p>
+                <div class="p-3 bg-light rounded mb-4 small">
+                    <div><strong>Due Date:</strong> {{ task.due_date|date:"l, M d, Y" }}</div>
+                    <div><strong>Priority:</strong> <span class="badge {% if task.priority == 'URGENT' %}badge-soft-danger{% elif task.priority == 'HIGH' %}badge-soft-warning{% elif task.priority == 'MEDIUM' %}badge-soft-primary{% else %}badge-soft-slate{% endif %}">{{ task.get_priority_display }}</span></div>
+                    <div><strong>Status:</strong> {{ task.get_status_display }}</div>
+                    <div><strong>Assigned Owner:</strong> {{ task.owner.get_full_name|default:task.owner.username }}</div>
+                    {% if task.related_client %}
+                        <div><strong>Client:</strong> {{ task.related_client.full_name }}</div>
+                    {% endif %}
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{% url 'tasks:list' %}" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+                        <button type="submit" class="btn btn-danger rounded-pill px-4 shadow-sm">
+                            <i class="bi bi-trash-fill me-1"></i> Confirm Delete
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

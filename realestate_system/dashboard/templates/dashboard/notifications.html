@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Notifications & Messages · {{ COMPANY_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-2">
+    <!-- Breadcrumb & Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}" class="text-decoration-none">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Notifications</li>
+                </ol>
+            </nav>
+            <h2 class="mb-0 text-navy fw-bold">
+                <i class="bi bi-bell-fill text-primary me-2"></i>Notifications & Messages
+            </h2>
+            <p class="text-muted small mb-0 mt-1">
+                Real-time alerts for incoming client inquiries, bookings scheduled, and system events.
+            </p>
+        </div>
+        <div>
+            <form method="post" action="{% url 'dashboard:mark_all_read' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold">
+                    <i class="bi bi-check2-all me-1"></i> Mark All as Read
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification List -->
+    <div class="card border-0 shadow-sm" style="border-radius: 18px; overflow: hidden;">
+        <div class="list-group list-group-flush">
+            {% for n in notifications %}
+                <div class="list-group-item p-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 {% if not n.is_read %}bg-light border-start border-4 border-primary{% endif %}">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="stat-icon {% if n.notification_type == 'INQUIRY' %}stat-icon-blue{% elif n.notification_type == 'BOOKING' %}stat-icon-green{% elif n.notification_type == 'SECURITY' %}stat-icon-amber{% else %}stat-icon-purple{% endif %} flex-shrink-0" style="width: 42px; height: 42px; font-size: 1.15rem;">
+                            {% if n.notification_type == 'INQUIRY' %}
+                                <i class="bi bi-chat-left-dots-fill"></i>
+                            {% elif n.notification_type == 'BOOKING' %}
+                                <i class="bi bi-calendar-check-fill"></i>
+                            {% elif n.notification_type == 'SECURITY' %}
+                                <i class="bi bi-shield-exclamation"></i>
+                            {% else %}
+                                <i class="bi bi-bell-fill"></i>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <h6 class="fw-bold text-navy mb-0">{{ n.title }}</h6>
+                                {% if not n.is_read %}
+                                    <span class="badge bg-primary rounded-pill px-2 py-0 small" style="font-size: 0.68rem;">New</span>
+                                {% endif %}
+                            </div>
+                            <p class="text-muted small mb-1">{{ n.message }}</p>
+                            <small class="text-secondary" style="font-size: 0.75rem;">
+                                <i class="bi bi-clock me-1"></i> {{ n.created_at|timesince }} ago ({{ n.created_at|date:"M d, Y H:i" }})
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2 flex-shrink-0 ms-auto">
+                        {% if n.link %}
+                            <a href="{% url 'dashboard:mark_notification_read' n.id %}" class="btn btn-primary btn-sm rounded-pill px-3">
+                                View Details <i class="bi bi-arrow-right"></i>
+                            </a>
+                        {% endif %}
+                        {% if not n.is_read %}
+                            <a href="{% url 'dashboard:mark_notification_read' n.id %}" class="btn btn-outline-secondary btn-sm rounded-pill px-2" title="Mark as Read">
+                                <i class="bi bi-check2"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <div class="p-5 text-center text-muted">
+                    <i class="bi bi-bell-slash fs-1 d-block mb-2"></i>
+                    <h6 class="fw-bold text-navy">No Notifications Found</h6>
+                    <p class="small text-muted mb-0">You're all caught up! New client leads and booking alerts will appear here.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

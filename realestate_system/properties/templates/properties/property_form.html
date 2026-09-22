@@ -1,0 +1,357 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ title }} · {{ COMPANY_NAME }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-10">
+        <!-- Top Navigation Bar & Action -->
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-4">
+            <div>
+                <a href="{% url 'dashboard:home' %}" class="text-decoration-none text-muted small fw-semibold d-inline-flex align-items-center mb-1">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+                </a>
+                <h3 class="fw-bold text-navy mb-0">
+                    <i class="bi bi-cloud-arrow-up-fill text-success me-2"></i>{{ title }}
+                </h3>
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+                <a href="{% url 'properties:catalog' %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                    <i class="bi bi-buildings me-1"></i> View Catalog
+                </a>
+            </div>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" novalidate id="propertyUploadForm">
+            {% csrf_token %}
+
+            {% if form.errors %}
+                <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+                    <h6 class="fw-bold mb-1"><i class="bi bi-exclamation-triangle-fill me-2"></i>Please correct the following errors:</h6>
+                    <ul class="mb-0 small">
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <li><strong>{{ field|title }}:</strong> {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endif %}
+
+            <!-- Section 1: General Information -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-primary-subtle text-primary p-2 rounded-circle"><i class="bi bi-info-circle-fill"></i></span>
+                        <h5 class="mb-0 fw-bold text-navy">1. Basic Property Information</h5>
+                    </div>
+                    <span class="badge bg-light text-secondary border">Core Identity</span>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-semibold text-dark">Property Title <span class="text-danger">*</span></label>
+                            {{ form.title }}
+                            <div class="form-text small">Clear, descriptive title (e.g. <em>Prime Residential Plots Behind Cathedral around Blue Empire</em>).</div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold text-dark">Engaging Subtitle / Tagline</label>
+                            {{ form.subtitle }}
+                            <div class="form-text small">A one-line punchy highlight for search results and previews.</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold text-dark">Property Type <span class="text-danger">*</span></label>
+                            {{ form.property_type }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold text-dark">Listing Status <span class="text-danger">*</span></label>
+                            {{ form.status }}
+                        </div>
+                        <div class="col-md-4 d-flex align-items-center">
+                            <div class="form-check form-switch mt-md-4">
+                                {{ form.is_featured }}
+                                <label class="form-check-label fw-semibold text-navy ms-1" for="{{ form.is_featured.id_for_label }}">
+                                    Highlight as Featured Listing
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Pricing & Dimensions -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-success-subtle text-success p-2 rounded-circle"><i class="bi bi-cash-stack"></i></span>
+                        <h5 class="mb-0 fw-bold text-navy">2. Valuation &amp; Land Dimensions</h5>
+                    </div>
+                    <span class="badge bg-light text-secondary border">Pricing &amp; Sizing</span>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold text-dark">Price (Numeric) <span class="text-danger">*</span></label>
+                            {{ form.price }}
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold text-dark">Currency</label>
+                            {{ form.currency }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold text-dark">Price Prefix</label>
+                            {{ form.price_prefix }}
+                            <div class="form-text small">e.g. <em>Starting from</em>, <em>Fixed</em></div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold text-dark">Price Suffix</label>
+                            {{ form.price_suffix }}
+                            <div class="form-text small">e.g. <em>per 400 m² plot</em>, <em>total</em></div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold text-dark">Area in m² (Numeric) <span class="text-danger">*</span></label>
+                            {{ form.area_sqm }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold text-dark">Area Display Text</label>
+                            {{ form.area_display }}
+                            <div class="form-text small">e.g. <em>400 m² (Acres and Hectares available)</em></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold text-dark">Topography / Terrain</label>
+                            {{ form.topography }}
+                            <div class="form-text small">e.g. <em>100% Level / Flat Topography</em></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Geographic Location -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-danger-subtle text-danger p-2 rounded-circle"><i class="bi bi-geo-alt-fill"></i></span>
+                        <h5 class="mb-0 fw-bold text-navy">3. Location &amp; Region</h5>
+                    </div>
+                    <span class="badge bg-light text-secondary border">Address</span>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-semibold text-dark">Full Location Address <span class="text-danger">*</span></label>
+                            {{ form.location }}
+                            <div class="form-text small">e.g. <em>Mile 18 Junction Buea, South West Region, Cameroon</em></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold text-dark">City</label>
+                            {{ form.city }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold text-dark">Region</label>
+                            {{ form.region }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold text-dark">Country</label>
+                            {{ form.country }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4: Detailed Description -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-warning-subtle text-warning p-2 rounded-circle"><i class="bi bi-file-text-fill"></i></span>
+                        <h5 class="mb-0 fw-bold text-navy">4. Complete Description &amp; Narrative</h5>
+                    </div>
+                    <span class="badge bg-light text-secondary border">Full Content</span>
+                </div>
+                <div class="card-body p-4">
+                    <label class="form-label fw-semibold text-dark">Full Property Description <span class="text-danger">*</span></label>
+                    {{ form.description }}
+                    <div class="form-text small mt-2">
+                        Provide a complete, rich narrative. Include architectural potential, road access, neighborhood security, tenure clarity, and investment benefits.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 5: Media & Photo Upload -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-info-subtle text-info p-2 rounded-circle"><i class="bi bi-image-fill"></i></span>
+                        <h5 class="mb-0 fw-bold text-navy">5. Property Photos &amp; Video</h5>
+                    </div>
+                    <span class="badge bg-light text-secondary border">Imagery</span>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-4">
+                        <div class="col-lg-7">
+                            <!-- File Upload -->
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold text-dark">Upload Primary Photo from Device</label>
+                                {{ form.featured_image_file }}
+                                <div class="form-text small">{{ form.featured_image_file.help_text }}</div>
+                            </div>
+
+                            <!-- Preset Chooser -->
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold text-dark">Or Select Curated Preset</label>
+                                {{ form.featured_image_preset }}
+                            </div>
+
+                            <!-- Custom URL -->
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold text-dark">Or External Photo URL / Path</label>
+                                {{ form.featured_image_custom_url }}
+                            </div>
+
+                            <!-- Video URL -->
+                            <div>
+                                <label class="form-label fw-semibold text-dark">Video Tour Link (YouTube / Vimeo)</label>
+                                {{ form.video_url }}
+                            </div>
+                        </div>
+
+                        <!-- Live Preview Box -->
+                        <div class="col-lg-5">
+                            <label class="form-label fw-semibold text-dark d-block">Photo Preview</label>
+                            <div class="border rounded-3 p-3 text-center bg-light" style="min-height: 220px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                                <img id="imagePreview" src="{% if property %}{{ property.image_url }}{% else %}{% static 'images/hero.jpg' %}{% endif %}" alt="Preview" style="max-height: 190px; width: 100%; object-fit: cover; border-radius: 8px;" class="shadow-sm">
+                                <small class="text-muted mt-2 d-block" id="previewCaption">Current Featured Image Preview</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 6: Legal Documents & Verifications -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-success-subtle text-success p-2 rounded-circle"><i class="bi bi-patch-check-fill"></i></span>
+                        <h5 class="mb-0 fw-bold text-navy">6. Official Legal Documents</h5>
+                    </div>
+                    <span class="badge bg-light text-secondary border">Tenure Guarantee</span>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-light border small text-muted mb-3">
+                        <i class="bi bi-info-circle text-primary me-1"></i> Enter legal documentation backing this land/property. One document per line. <strong>Format:</strong> <code>Document Name: Description</code>
+                    </div>
+                    {{ form.documents_input }}
+                </div>
+            </div>
+
+            <!-- Section 7: Highlights & Features -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-primary-subtle text-primary p-2 rounded-circle"><i class="bi bi-stars"></i></span>
+                        <h5 class="mb-0 fw-bold text-navy">7. Key Highlights &amp; Features</h5>
+                    </div>
+                    <span class="badge bg-light text-secondary border">Key Selling Points</span>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-light border small text-muted mb-3">
+                        <i class="bi bi-info-circle text-primary me-1"></i> Enter key selling highlights and amenities, one per line.
+                    </div>
+                    {{ form.features_input }}
+                </div>
+            </div>
+
+            <!-- Section 8: Proximity Landmarks -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-info-subtle text-info p-2 rounded-circle"><i class="bi bi-signpost-split-fill"></i></span>
+                        <h5 class="mb-0 fw-bold text-navy">8. Neighborhood Landmarks &amp; Distances</h5>
+                    </div>
+                    <span class="badge bg-light text-secondary border">Accessibility</span>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-light border small text-muted mb-3">
+                        <i class="bi bi-info-circle text-primary me-1"></i> Enter nearby schools, hospitals, commercial points, and travel times. <strong>Format:</strong> <code>Landmark Name | Travel Time | Description</code>
+                    </div>
+                    {{ form.landmarks_input }}
+                </div>
+            </div>
+
+            <!-- Section 9: Agent Assignment -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-secondary-subtle text-secondary p-2 rounded-circle"><i class="bi bi-person-badge-fill"></i></span>
+                        <h5 class="mb-0 fw-bold text-navy">9. Lead &amp; Showing Consultant</h5>
+                    </div>
+                    <span class="badge bg-light text-secondary border">Staff Assignment</span>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-dark">Assigned Property Consultant</label>
+                            {{ form.assigned_agent }}
+                            <div class="form-text small">This consultant will receive direct WhatsApp leads and tour requests for this property.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Action Buttons -->
+            <div class="card border-0 shadow-sm mb-5">
+                <div class="card-body p-4 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+                    <a href="{% url 'dashboard:home' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                        <i class="bi bi-x-circle me-1"></i> Cancel &amp; Back
+                    </a>
+                    <button type="submit" class="btn btn-brand-green rounded-pill px-5 py-2 fw-bold shadow">
+                        <i class="bi bi-cloud-arrow-up-fill me-1"></i> {% if is_create %}Publish Property Listing{% else %}Save Changes{% endif %}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.querySelector('input[type="file"][name="featured_image_file"]');
+    const presetSelect = document.querySelector('select[name="featured_image_preset"]');
+    const customUrlInput = document.querySelector('input[name="featured_image_custom_url"]');
+    const previewImg = document.getElementById('imagePreview');
+    const caption = document.getElementById('previewCaption');
+
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    previewImg.src = evt.target.result;
+                    caption.textContent = 'Uploaded file: ' + fileInput.files[0].name;
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    }
+
+    if (presetSelect) {
+        presetSelect.addEventListener('change', function() {
+            if (this.value) {
+                previewImg.src = '/static/' + this.value;
+                caption.textContent = 'Selected Preset: ' + this.options[this.selectedIndex].text;
+            }
+        });
+    }
+
+    if (customUrlInput) {
+        customUrlInput.addEventListener('blur', function() {
+            if (this.value && (this.value.startsWith('http') || this.value.startsWith('/'))) {
+                previewImg.src = this.value;
+                caption.textContent = 'Custom URL preview';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

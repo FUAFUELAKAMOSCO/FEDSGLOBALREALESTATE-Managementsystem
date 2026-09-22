@@ -1,0 +1,483 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Contacts & Leads CRM{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h2 class="mb-1 text-navy"><i class="bi bi-people-fill text-primary me-2"></i>Contacts & Client Relationship Hub</h2>
+        <p class="text-muted mb-0">Manage buyers, sellers, tenants, and investors across the entire real estate pipeline.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <div class="btn-group shadow-sm" role="group">
+            <a href="?scope=all{% if q %}&q={{ q }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if source_filter %}&source={{ source_filter }}{% endif %}{% if interest_filter %}&interest={{ interest_filter }}{% endif %}{% if agent_filter %}&agent={{ agent_filter }}{% endif %}" class="btn btn-sm {% if view_scope == 'all' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+                All Contacts ({{ total_contacts }})
+            </a>
+            <a href="?scope=mine{% if q %}&q={{ q }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if source_filter %}&source={{ source_filter }}{% endif %}{% if interest_filter %}&interest={{ interest_filter }}{% endif %}{% if agent_filter %}&agent={{ agent_filter }}{% endif %}" class="btn btn-sm {% if view_scope == 'mine' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+                My Leads ({{ my_leads_count }})
+            </a>
+        </div>
+        <a href="{% url 'contacts:create' %}" class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold shadow-sm">
+            <i class="bi bi-person-plus-fill me-1"></i> New Contact
+        </a>
+    </div>
+</div>
+
+<!-- KPI Cards Row -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl">
+        <a href="?scope={{ view_scope }}" class="text-decoration-none">
+            <div class="stat-card-pro stat-card-primary h-100 card-hover">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Total Database</div>
+                        <div class="stat-value">{{ total_contacts }}</div>
+                        <div class="mt-2 small text-muted">Registered contacts</div>
+                    </div>
+                    <div class="stat-icon stat-icon-blue">
+                        <i class="bi bi-person-lines-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-sm-6 col-xl">
+        <a href="?scope={{ view_scope }}&status=NEW" class="text-decoration-none">
+            <div class="stat-card-pro stat-card-primary h-100 card-hover">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">New Leads</div>
+                        <div class="stat-value">{{ new_leads }}</div>
+                        <div class="mt-2 small text-muted">Awaiting first outreach</div>
+                    </div>
+                    <div class="stat-icon stat-icon-blue">
+                        <i class="bi bi-person-exclamation"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-sm-6 col-xl">
+        <a href="?scope={{ view_scope }}&status=NEGOTIATING" class="text-decoration-none">
+            <div class="stat-card-pro stat-card-warning h-100 card-hover">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">In Negotiation</div>
+                        <div class="stat-value">{{ negotiating_count }}</div>
+                        <div class="mt-2 small text-muted">Active deal talks</div>
+                    </div>
+                    <div class="stat-icon stat-icon-amber">
+                        <i class="bi bi-hourglass-split"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-sm-6 col-xl">
+        <a href="?scope={{ view_scope }}&status=CLOSED" class="text-decoration-none">
+            <div class="stat-card-pro stat-card-success h-100 card-hover">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Closed Won</div>
+                        <div class="stat-value">{{ closed_count }}</div>
+                        <div class="mt-2 small text-muted">Executed contracts</div>
+                    </div>
+                    <div class="stat-icon stat-icon-green">
+                        <i class="bi bi-trophy-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-sm-6 col-xl">
+        <div class="stat-card-pro stat-card-purple h-100">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Win / Conversion Rate</div>
+                    <div class="stat-value">{{ conversion_rate }}%</div>
+                    <div class="mt-2">
+                        <div class="progress" style="height: 6px; width: 100px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ conversion_rate }}%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-icon stat-icon-purple">
+                    <i class="bi bi-pie-chart"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-4 mb-4">
+    <!-- Chart 1: Acquisition Channels -->
+    <div class="col-lg-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-header bg-white">
+                <h6 class="mb-0 fw-bold text-navy"><i class="bi bi-diagram-3-fill text-primary me-2"></i>Acquisition Channels</h6>
+                <small class="text-muted">Lead origin source distribution</small>
+            </div>
+            <div class="card-body">
+                <div class="chart-container-wrapper" style="height: 240px; width: 100%; position: relative;">
+                    <canvas id="contactsSourceChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 2: Pipeline Funnel -->
+    <div class="col-lg-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-header bg-white">
+                <h6 class="mb-0 fw-bold text-navy"><i class="bi bi-funnel-fill text-warning me-2"></i>Status Pipeline</h6>
+                <small class="text-muted">Progression through stages</small>
+            </div>
+            <div class="card-body">
+                <div class="chart-container-wrapper" style="height: 240px; width: 100%; position: relative;">
+                    <canvas id="contactsStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 3: Client Interests -->
+    <div class="col-lg-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-header bg-white">
+                <h6 class="mb-0 fw-bold text-navy"><i class="bi bi-tags-fill text-success me-2"></i>Property Interests</h6>
+                <small class="text-muted">Buy, Rent, Sell & Invest intent</small>
+            </div>
+            <div class="card-body">
+                <div class="chart-container-wrapper" style="height: 240px; width: 100%; position: relative;">
+                    <canvas id="contactsInterestChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search & Filtering Toolbar -->
+<div class="filter-bar mb-4">
+    <form method="get" class="row g-2 align-items-center">
+        <input type="hidden" name="scope" value="{{ view_scope }}">
+
+        <div class="col-md-3">
+            <div class="input-group search-input-group">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text" name="q" value="{{ q }}" class="form-control form-control-sm" placeholder="Search by name, phone, email...">
+            </div>
+        </div>
+
+        <div class="col-md-2 col-sm-6">
+            <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">All Statuses</option>
+                {% for key, label in statuses %}
+                    <option value="{{ key }}" {% if status_filter == key %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-2 col-sm-6">
+            <select name="source" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">All Sources</option>
+                {% for key, label in sources %}
+                    <option value="{{ key }}" {% if source_filter == key %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-2 col-sm-6">
+            <select name="interest" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">All Interests</option>
+                {% for key, label in interests %}
+                    <option value="{{ key }}" {% if interest_filter == key %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-2 col-sm-6">
+            <select name="agent" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">All Agents</option>
+                {% for a in agents_list %}
+                    <option value="{{ a.id }}" {% if agent_filter == a.id|stringformat:"s" %}selected{% endif %}>
+                        {{ a.get_full_name|default:a.username }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-1 col-sm-6 d-flex gap-1">
+            <button type="submit" class="btn btn-primary btn-sm w-100" title="Apply Filter"><i class="bi bi-funnel"></i></button>
+            {% if q or status_filter or source_filter or interest_filter or agent_filter %}
+                <a href="{% url 'contacts:list' %}?scope={{ view_scope }}" class="btn btn-outline-secondary btn-sm" title="Clear Filters"><i class="bi bi-x-lg"></i></a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- Contacts Table Card -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold text-navy">
+            <i class="bi bi-table text-secondary me-2"></i>Contact Directory ({{ contacts|length }} Records)
+        </h6>
+        <small class="text-muted">Showing filtered results</small>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-pro align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Contact / Client</th>
+                    <th>Direct Actions</th>
+                    <th>Source</th>
+                    <th>Interest</th>
+                    <th>Estimated Budget</th>
+                    <th>Status</th>
+                    <th>Assigned Agent</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for c in contacts %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="avatar-chip {% cycle 'avatar-chip-blue' 'avatar-chip-emerald' 'avatar-chip-amber' 'avatar-chip-purple' %}">
+                                {{ c.full_name|slice:":1"|upper }}
+                            </div>
+                            <div>
+                                <a href="{% url 'contacts:edit' c.pk %}" class="fw-bold text-dark text-decoration-none">
+                                    {{ c.full_name }}
+                                </a>
+                                <div class="small text-muted">{{ c.email|default:"No email registered" }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            {% if c.phone %}
+                                <a href="tel:{{ c.phone }}" class="btn btn-sm btn-outline-primary btn-action-icon" title="Call {{ c.phone }}">
+                                    <i class="bi bi-telephone"></i>
+                                </a>
+                                {% if c.clean_phone_number %}
+                                    <a href="https://wa.me/{{ c.clean_phone_number }}" target="_blank" class="btn btn-sm btn-outline-success btn-action-icon" title="WhatsApp Chat">
+                                        <i class="bi bi-whatsapp"></i>
+                                    </a>
+                                {% endif %}
+                            {% endif %}
+                            {% if c.email %}
+                                <a href="mailto:{{ c.email }}" class="btn btn-sm btn-outline-secondary btn-action-icon" title="Email {{ c.email }}">
+                                    <i class="bi bi-envelope"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge badge-soft-slate">{{ c.get_source_display }}</span>
+                    </td>
+                    <td>
+                        {% if c.interest == 'BUY' %}
+                            <span class="badge badge-soft-primary"><i class="bi bi-house-check me-1"></i>Buy</span>
+                        {% elif c.interest == 'RENT' %}
+                            <span class="badge badge-soft-info"><i class="bi bi-key me-1"></i>Rent</span>
+                        {% elif c.interest == 'SELL' %}
+                            <span class="badge badge-soft-warning"><i class="bi bi-tag me-1"></i>Sell</span>
+                        {% else %}
+                            <span class="badge badge-soft-purple"><i class="bi bi-cash-coin me-1"></i>Invest</span>
+                        {% endif %}
+                    </td>
+                    <td class="fw-semibold text-navy">
+                        {% if c.budget %}
+                            {{ c.budget|floatformat:0|intcomma }} CFA
+                        {% else %}
+                            <span class="text-muted small">Not specified</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if c.status == 'NEW' %}
+                            <span class="badge badge-soft-primary badge-pill-custom">New Lead</span>
+                        {% elif c.status == 'CONTACTED' %}
+                            <span class="badge badge-soft-info badge-pill-custom">Contacted</span>
+                        {% elif c.status == 'VIEWING' %}
+                            <span class="badge badge-soft-purple badge-pill-custom">Viewing</span>
+                        {% elif c.status == 'NEGOTIATING' %}
+                            <span class="badge badge-soft-warning badge-pill-custom">Negotiating</span>
+                        {% elif c.status == 'CLOSED' %}
+                            <span class="badge badge-soft-success badge-pill-custom"><i class="bi bi-check2-circle me-1"></i>Closed</span>
+                        {% else %}
+                            <span class="badge badge-soft-danger badge-pill-custom">Lost</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if c.assigned_agent %}
+                            <span class="badge bg-light text-dark border">
+                                <i class="bi bi-person-badge text-primary me-1"></i>{{ c.assigned_agent.get_full_name|default:c.assigned_agent.username }}
+                            </span>
+                        {% else %}
+                            <span class="text-muted small">Unassigned</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'contacts:edit' c.pk %}" class="btn btn-outline-secondary rounded-pill-start px-2" title="Edit Contact">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </a>
+                            <a href="{% url 'contacts:delete' c.pk %}" class="btn btn-outline-danger rounded-pill-end px-2" title="Delete Contact">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-5">
+                        <i class="bi bi-search fs-2 d-block mb-2 text-secondary"></i>
+                        No contacts match your query.
+                        <div class="mt-2">
+                            <a href="{% url 'contacts:create' %}" class="btn btn-sm btn-primary rounded-pill">+ Add New Contact</a>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function() {
+    function initContactsCharts() {
+        if (typeof Chart === 'undefined') {
+            console.warn('Chart.js library is not loaded. Skipping contacts chart initialization.');
+            return;
+        }
+
+        // Helper to safely destroy any existing chart before instantiating a new one
+        function renderSafeChart(canvasId, config) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return null;
+            const existing = Chart.getChart(canvas);
+            if (existing) {
+                existing.destroy();
+            }
+            return new Chart(canvas, config);
+        }
+
+        // 1. Acquisition Source Chart
+        try {
+            const rawSourceCounts = {{ source_counts_json|default:"[]"|safe }};
+            const sourceLabels = {{ source_labels_json|default:"[]"|safe }};
+
+            renderSafeChart('contactsSourceChart', {
+                type: 'bar',
+                data: {
+                    labels: sourceLabels,
+                    datasets: [{
+                        data: rawSourceCounts,
+                        backgroundColor: [
+                            '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4'
+                        ],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            suggestedMax: 5,
+                            ticks: { stepSize: 1, precision: 0 }
+                        },
+                        y: { grid: { display: false } }
+                    }
+                }
+            });
+        } catch (err) {
+            console.error('Failed to initialize source chart:', err);
+        }
+
+        // 2. Status Pipeline Chart
+        try {
+            const rawStatusData = {{ status_counts_json|default:"[]"|safe }};
+            const statusLabels = {{ status_labels_json|default:"[]"|safe }};
+            const hasStatusData = Array.isArray(rawStatusData) && rawStatusData.some(function(v) { return Number(v) > 0; });
+
+            renderSafeChart('contactsStatusChart', {
+                type: 'doughnut',
+                data: {
+                    labels: hasStatusData ? statusLabels : ['No Leads Yet'],
+                    datasets: [{
+                        data: hasStatusData ? rawStatusData : [1],
+                        backgroundColor: hasStatusData ? [
+                            '#3b82f6', '#06b6d4', '#8b5cf6', '#f59e0b', '#10b981', '#ef4444'
+                        ] : ['#e2e8f0'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8 } },
+                        tooltip: { enabled: hasStatusData }
+                    },
+                    cutout: '60%'
+                }
+            });
+        } catch (err) {
+            console.error('Failed to initialize status chart:', err);
+        }
+
+        // 3. Interest Polar Area Chart
+        try {
+            const rawInterestData = {{ interest_counts_json|default:"[]"|safe }};
+            const interestLabels = {{ interest_labels_json|default:"[]"|safe }};
+            const hasInterestData = Array.isArray(rawInterestData) && rawInterestData.some(function(v) { return Number(v) > 0; });
+
+            renderSafeChart('contactsInterestChart', {
+                type: 'polarArea',
+                data: {
+                    labels: hasInterestData ? interestLabels : ['No Intents'],
+                    datasets: [{
+                        data: hasInterestData ? rawInterestData : [1],
+                        backgroundColor: hasInterestData ? [
+                            'rgba(59, 130, 246, 0.75)',
+                            'rgba(6, 182, 212, 0.75)',
+                            'rgba(245, 158, 11, 0.75)',
+                            'rgba(139, 92, 246, 0.75)'
+                        ] : ['rgba(226, 232, 240, 0.75)']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8 } },
+                        tooltip: { enabled: hasInterestData }
+                    }
+                }
+            });
+        } catch (err) {
+            console.error('Failed to initialize interest chart:', err);
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initContactsCharts);
+    } else {
+        initContactsCharts();
+    }
+})();
+</script>
+{% endblock %}

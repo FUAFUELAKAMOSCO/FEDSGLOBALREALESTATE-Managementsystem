@@ -1,0 +1,704 @@
+{% extends 'base.html' %}
+{% block title %}Executive Dashboard{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h2 class="mb-1 text-navy"><i class="bi bi-speedometer2 text-primary me-2"></i>Executive Real Estate Dashboard</h2>
+        <p class="text-muted mb-0">Overview of client pipeline, today's showings, tasks urgency, and team activity velocity.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'properties:create' %}" class="btn btn-outline-success btn-sm rounded-pill px-3 fw-semibold">
+            <i class="bi bi-cloud-arrow-up-fill me-1"></i> Upload Property
+        </a>
+        <a href="{% url 'bookings:create' %}" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold">
+            <i class="bi bi-calendar-plus me-1"></i> New Booking
+        </a>
+        <a href="{% url 'contacts:create' %}" class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold shadow-sm">
+            <i class="bi bi-person-plus-fill me-1"></i> Add Lead
+        </a>
+    </div>
+</div>
+
+<!-- KPI Cards Row -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl">
+        <a href="{% url 'contacts:list' %}" class="text-decoration-none">
+            <div class="stat-card-pro stat-card-primary h-100 card-hover">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Total Contacts</div>
+                        <div class="stat-value">{{ total_contacts }}</div>
+                        <div class="mt-2 small text-muted">
+                            <span class="badge badge-soft-success me-1">+{{ new_leads }} New</span> Active Leads
+                        </div>
+                    </div>
+                    <div class="stat-icon stat-icon-blue">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-sm-6 col-xl">
+        <a href="{% url 'contacts:list' %}?status=NEGOTIATING" class="text-decoration-none">
+            <div class="stat-card-pro stat-card-warning h-100 card-hover">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">In Negotiation</div>
+                        <div class="stat-value">{{ negotiating_deals }}</div>
+                        <div class="mt-2 small text-muted">
+                            <span class="badge badge-soft-primary me-1">{{ closed_deals }} Closed</span> Won Deals
+                        </div>
+                    </div>
+                    <div class="stat-icon stat-icon-amber">
+                        <i class="bi bi-briefcase-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-sm-6 col-xl">
+        <a href="{% url 'bookings:today' %}" class="text-decoration-none">
+            <div class="stat-card-pro stat-card-success h-100 card-hover">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Bookings Today</div>
+                        <div class="stat-value">{{ total_bookings_today }}</div>
+                        <div class="mt-2 small text-muted">
+                            <span class="badge badge-soft-info me-1">{{ upcoming_bookings_week }} Upcoming</span> 7-day schedule
+                        </div>
+                    </div>
+                    <div class="stat-icon stat-icon-green">
+                        <i class="bi bi-calendar2-check-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-sm-6 col-xl">
+        <a href="{% url 'tasks:my_tasks' %}" class="text-decoration-none">
+            <div class="stat-card-pro {% if my_overdue > 0 %}stat-card-danger{% else %}stat-card-primary{% endif %} h-100 card-hover">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Pending Tasks</div>
+                        <div class="stat-value">{{ my_open_tasks }}</div>
+                        <div class="mt-2 small text-muted">
+                            {% if my_overdue > 0 %}
+                                <span class="badge badge-soft-danger me-1"><i class="bi bi-exclamation-circle-fill"></i> {{ my_overdue }} Overdue</span>
+                            {% else %}
+                                <span class="badge badge-soft-success me-1"><i class="bi bi-check-all"></i> On Track</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="stat-icon {% if my_overdue > 0 %}stat-icon-red{% else %}stat-icon-blue{% endif %}">
+                        <i class="bi bi-list-check"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-sm-6 col-xl">
+        <a href="{% url 'tasks:my_tasks' %}" class="text-decoration-none">
+            <div class="stat-card-pro stat-card-purple h-100 card-hover">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Task Productivity</div>
+                        <div class="stat-value">{{ task_completion_rate }}%</div>
+                        <div class="mt-2">
+                            <div class="progress" style="height: 6px; width: 100px;">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ task_completion_rate }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-icon stat-icon-purple">
+                        <i class="bi bi-graph-up-arrow"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Row 1: Charts -->
+<div class="row g-4 mb-4">
+    <!-- Chart 1: Lead Pipeline Breakdown -->
+    <div class="col-lg-6 col-xl-5">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-0 fw-bold text-navy"><i class="bi bi-funnel-fill text-primary me-2"></i>Lead Pipeline Breakdown</h6>
+                    <small class="text-muted">Current status of all client relationships</small>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge badge-soft-primary badge-pill-custom">{{ total_contacts }} Leads</span>
+                    <a href="{% url 'contacts:list' %}" class="btn btn-sm btn-light border small" title="View Contacts Directory">View</a>
+                </div>
+            </div>
+            <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                <div class="chart-container-wrapper" style="height: 260px; width: 100%; position: relative;">
+                    <canvas id="pipelineChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 2: Bookings by Type -->
+    <div class="col-lg-6 col-xl-7">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-0 fw-bold text-navy"><i class="bi bi-pie-chart-fill text-success me-2"></i>Bookings & Showings by Type</h6>
+                    <small class="text-muted">Client engagement modalities across scheduled meetings</small>
+                </div>
+                <a href="{% url 'bookings:list' %}" class="btn btn-sm btn-light border small">View Bookings</a>
+            </div>
+            <div class="card-body">
+                <div class="chart-container-wrapper" style="height: 260px; width: 100%; position: relative;">
+                    <canvas id="bookingsTypeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Row 2: Secondary Charts -->
+<div class="row g-4 mb-4">
+    <!-- Chart 3: Activity Velocity Trend -->
+    <div class="col-lg-7">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-0 fw-bold text-navy"><i class="bi bi-activity text-info me-2"></i>Team Activity Velocity (Last 7 Days)</h6>
+                    <small class="text-muted">Daily volume of calls, emails, site visits, and WhatsApp follow-ups</small>
+                </div>
+                <span class="badge badge-soft-info badge-pill-custom">Live Velocity</span>
+            </div>
+            <div class="card-body">
+                <div class="chart-container-wrapper" style="height: 260px; width: 100%; position: relative;">
+                    <canvas id="activityTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 4: Tasks Urgency Distribution -->
+    <div class="col-lg-5">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-0 fw-bold text-navy"><i class="bi bi-bar-chart-steps text-warning me-2"></i>Task Workload by Priority</h6>
+                    <small class="text-muted">Pending action items categorized by urgency</small>
+                </div>
+                <a href="{% url 'tasks:my_tasks' %}" class="btn btn-sm btn-light border small">All Tasks</a>
+            </div>
+            <div class="card-body">
+                <div class="chart-container-wrapper" style="height: 260px; width: 100%; position: relative;">
+                    <canvas id="tasksPriorityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Property Section: Portfolio & Active Listings -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white py-3 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+        <div>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <h5 class="mb-0 fw-bold text-navy">
+                    <i class="bi bi-buildings-fill text-success me-2"></i>Properties &amp; Estates Portfolio
+                </h5>
+                <span class="badge badge-soft-success badge-pill-custom">{{ total_properties }} Listed</span>
+                <span class="badge badge-soft-primary badge-pill-custom">{{ active_properties }} Available</span>
+            </div>
+            <small class="text-muted">Manage, track, and publish prime real estate listings, titled plots, and developments</small>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'properties:catalog' %}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                <i class="bi bi-grid me-1"></i> View Catalog
+            </a>
+            <a href="{% url 'properties:create' %}" class="btn btn-sm btn-success rounded-pill px-3 fw-semibold shadow-sm">
+                <i class="bi bi-cloud-arrow-up-fill me-1"></i> Upload New Property
+            </a>
+        </div>
+    </div>
+    <div class="card-body p-4">
+        {% if properties_list %}
+            <div class="row g-4">
+                {% for prop in properties_list %}
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card h-100 border rounded-3 overflow-hidden shadow-none card-hover transition-all position-relative" style="border-color: #e2e8f0;">
+                            <!-- Property Image & Badges -->
+                            <div style="height: 185px; position: relative; overflow: hidden; background: #0a192f;">
+                                <a href="{% url 'properties:detail' prop.slug %}" class="d-block w-100 h-100">
+                                    <img src="{{ prop.image_url }}" alt="{{ prop.title }}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;">
+                                </a>
+                                <span class="badge bg-success position-absolute top-0 start-0 m-2 px-2 py-1 fw-semibold small shadow-sm">
+                                    {{ prop.get_property_type_display }}
+                                </span>
+                                {% if prop.status == 'AVAILABLE' %}
+                                    <span class="badge bg-primary position-absolute top-0 end-0 m-2 px-2 py-1 fw-semibold small shadow-sm">Available</span>
+                                {% elif prop.status == 'UNDER_OFFER' %}
+                                    <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2 px-2 py-1 fw-semibold small shadow-sm">Under Offer</span>
+                                {% elif prop.status == 'RESERVED' %}
+                                    <span class="badge bg-info position-absolute top-0 end-0 m-2 px-2 py-1 fw-semibold small shadow-sm">Reserved</span>
+                                {% else %}
+                                    <span class="badge bg-secondary position-absolute top-0 end-0 m-2 px-2 py-1 fw-semibold small shadow-sm">{{ prop.get_status_display }}</span>
+                                {% endif %}
+                                <div class="position-absolute bottom-0 start-0 end-0 p-2 bg-dark bg-opacity-75 text-white d-flex justify-content-between align-items-center small">
+                                    <span class="fw-bold">{{ prop.formatted_price }}</span>
+                                    <span class="text-white-50 small">{{ prop.area_sqm|floatformat:0 }} m²</span>
+                                </div>
+                            </div>
+
+                            <!-- Card Body -->
+                            <div class="card-body p-3 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="small text-muted mb-1 text-truncate">
+                                        <i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ prop.location }}
+                                    </div>
+                                    <h6 class="fw-bold text-navy mb-2">
+                                        <a href="{% url 'properties:detail' prop.slug %}" class="text-navy text-decoration-none">
+                                            {{ prop.title }}
+                                        </a>
+                                    </h6>
+                                    <p class="text-muted small mb-3" style="font-size: 0.825rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                        {{ prop.description }}
+                                    </p>
+                                </div>
+
+                                <div class="pt-2 border-top d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="small text-muted" title="Views">
+                                            <i class="bi bi-eye text-info me-1"></i>{{ prop.views_count }}
+                                        </span>
+                                        <a href="{% url 'properties:edit' prop.slug %}" class="btn btn-sm btn-light border py-0 px-2 text-secondary rounded" title="Edit Listing">
+                                            <i class="bi bi-pencil-fill" style="font-size: 0.75rem;"></i>
+                                        </a>
+                                    </div>
+                                    <a href="{% url 'properties:detail' prop.slug %}" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold">
+                                        View Entire Property <i class="bi bi-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <div class="stat-icon stat-icon-green mx-auto mb-3" style="width: 64px; height: 64px; font-size: 1.8rem;">
+                    <i class="bi bi-buildings"></i>
+                </div>
+                <h5 class="fw-bold text-navy mb-2">No Properties Listed Yet</h5>
+                <p class="text-muted small mb-3">Upload your first property listing to start managing plots, villas, and commercial real estate.</p>
+                <a href="{% url 'properties:create' %}" class="btn btn-brand-green rounded-pill px-4 py-2 shadow-sm fw-semibold">
+                    <i class="bi bi-cloud-arrow-up-fill me-1"></i> Upload First Property
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Row 3: Actionable Data Panels -->
+<div class="row g-4">
+    <!-- Today's Bookings & Showings -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold text-navy">
+                    <i class="bi bi-calendar-event text-success me-2"></i>Today's Showings & Appointments
+                </h6>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge badge-soft-success badge-pill-custom">{{ total_bookings_today }} Today</span>
+                    <a href="{% url 'bookings:today' %}" class="btn btn-sm btn-light border small">Manage</a>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-pro align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Client</th>
+                            <th>Property / Location</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in todays_bookings %}
+                            <tr>
+                                <td class="fw-bold text-primary">
+                                    <i class="bi bi-clock me-1"></i>{{ b.booking_datetime|date:"H:i" }}
+                                </td>
+                                <td>
+                                    <div>
+                                        <a href="{% url 'contacts:edit' b.client.pk %}" class="fw-semibold text-dark text-decoration-none">
+                                            {{ b.client.full_name }}
+                                        </a>
+                                    </div>
+                                    <small class="text-muted">
+                                        <a href="tel:{{ b.client.phone }}" class="text-muted text-decoration-none">
+                                            <i class="bi bi-telephone me-1"></i>{{ b.client.phone }}
+                                        </a>
+                                    </small>
+                                </td>
+                                <td>
+                                    <div class="small fw-semibold text-truncate" style="max-width: 200px;" title="{{ b.property_address }}">
+                                        <i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ b.property_address }}
+                                    </div>
+                                    <span class="badge badge-soft-slate small">{{ b.get_booking_type_display }}</span>
+                                </td>
+                                <td>
+                                    {% if b.status == 'CONFIRMED' %}
+                                        <span class="badge badge-soft-success badge-pill-custom">Confirmed</span>
+                                    {% elif b.status == 'REQUESTED' %}
+                                        <span class="badge badge-soft-warning badge-pill-custom">Requested</span>
+                                    {% elif b.status == 'COMPLETED' %}
+                                        <span class="badge badge-soft-primary badge-pill-custom">Completed</span>
+                                    {% else %}
+                                        <span class="badge badge-soft-danger badge-pill-custom">{{ b.get_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">
+                                    <i class="bi bi-calendar2-x fs-4 d-block mb-1 text-secondary"></i>
+                                    No appointments scheduled for today.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- High Priority Tasks -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold text-navy">
+                    <i class="bi bi-lightning-charge-fill text-warning me-2"></i>Urgent & High-Priority Tasks
+                </h6>
+                <a href="{% url 'tasks:create' %}" class="btn btn-sm btn-outline-primary rounded-pill small">+ Add Task</a>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for t in urgent_tasks %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center p-3 {% if t.is_overdue %}task-overdue-row{% endif %}">
+                        <div class="d-flex align-items-center gap-3">
+                            <a href="{% url 'tasks:toggle' t.pk %}" class="text-decoration-none {% if t.status == 'DONE' %}text-success{% else %}text-secondary{% endif %}" title="{% if t.status == 'DONE' %}Mark as incomplete{% else %}Mark as done{% endif %}">
+                                {% if t.status == 'DONE' %}
+                                    <i class="bi bi-check-square-fill fs-5"></i>
+                                {% else %}
+                                    <i class="bi bi-square fs-5"></i>
+                                {% endif %}
+                            </a>
+                            <div>
+                                <div class="fw-semibold {% if t.status == 'DONE' %}text-decoration-line-through text-muted{% else %}text-dark{% endif %}">{{ t.title }}</div>
+                                <div class="small text-muted">
+                                    {% if t.related_client %}
+                                        <a href="{% url 'contacts:edit' t.related_client.pk %}" class="text-primary text-decoration-none me-2">
+                                            <i class="bi bi-person me-1"></i>{{ t.related_client.full_name }}
+                                        </a>
+                                    {% endif %}
+                                    <span class="{% if t.is_overdue %}text-danger fw-bold{% else %}text-muted{% endif %}">
+                                        <i class="bi bi-calendar-event me-1"></i>Due {{ t.due_date|date:"M d" }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            {% if t.priority == 'URGENT' %}
+                                <span class="badge badge-soft-danger badge-pill-custom">Urgent</span>
+                            {% elif t.priority == 'HIGH' %}
+                                <span class="badge badge-soft-warning badge-pill-custom">High</span>
+                            {% else %}
+                                <span class="badge badge-soft-info badge-pill-custom">{{ t.get_priority_display }}</span>
+                            {% endif %}
+                        </div>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item text-center text-muted py-4">
+                        <i class="bi bi-check-circle-fill fs-3 text-success d-block mb-1"></i>
+                        All high-priority tasks completed!
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Live Activity Feed -->
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold text-navy">
+                    <i class="bi bi-broadcast text-danger me-2"></i>Live Activity Feed & Client Touchpoints
+                </h6>
+                <a href="{% url 'activity:list' %}" class="btn btn-sm btn-light border small">View All Activity Logs</a>
+            </div>
+            <div class="card-body p-4">
+                {% if recent_activity %}
+                    <div class="activity-timeline">
+                        {% for a in recent_activity %}
+                            <div class="activity-item">
+                                <div class="activity-badge {% if a.action == 'CALLED' %}activity-badge-call{% elif a.action == 'EMAILED' %}activity-badge-email{% elif a.action == 'MET' %}activity-badge-meeting{% elif a.action == 'WHATSAPP' %}activity-badge-whatsapp{% else %}activity-badge-note{% endif %}">
+                                    {% if a.action == 'CALLED' %}<i class="bi bi-telephone-fill"></i>
+                                    {% elif a.action == 'EMAILED' %}<i class="bi bi-envelope-fill"></i>
+                                    {% elif a.action == 'MET' %}<i class="bi bi-people-fill"></i>
+                                    {% elif a.action == 'WHATSAPP' %}<i class="bi bi-whatsapp"></i>
+                                    {% else %}<i class="bi bi-sticky-fill"></i>{% endif %}
+                                </div>
+                                <div class="card border p-3 shadow-none bg-light bg-opacity-50 ms-2">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <div>
+                                            <strong class="text-navy">{{ a.person.get_full_name|default:a.person.username }}</strong>
+                                            <span class="badge badge-soft-slate ms-1">{{ a.get_action_display }}</span>
+                                            {% if a.related_client %}
+                                                <span class="text-muted">with</span>
+                                                <a href="{% url 'contacts:edit' a.related_client.pk %}" class="text-primary text-decoration-none">
+                                                    <strong>{{ a.related_client.full_name }}</strong>
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                        <small class="text-muted"><i class="bi bi-clock me-1"></i>{{ a.created_at|timesince }} ago</small>
+                                    </div>
+                                    <div class="text-dark small">{{ a.summary }}</div>
+                                    {% if a.outcome %}
+                                        <div class="mt-2 pt-2 border-top small text-success fw-semibold">
+                                            <i class="bi bi-arrow-right-circle me-1"></i>Outcome: {{ a.outcome }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-journal-x fs-3 d-block mb-2 text-secondary"></i>
+                        No activity logs recorded yet.
+                        <div class="mt-2">
+                            <a href="{% url 'activity:create' %}" class="btn btn-sm btn-outline-primary rounded-pill">+ Log Activity</a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function() {
+    function initDashboardCharts() {
+        if (typeof Chart === 'undefined') {
+            console.warn('Chart.js library is not loaded. Skipping dashboard chart initialization.');
+            return;
+        }
+
+        // Helper to safely destroy any existing chart before instantiating a new one
+        function renderSafeChart(canvasId, config) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return null;
+            const existing = Chart.getChart(canvas);
+            if (existing) {
+                existing.destroy();
+            }
+            return new Chart(canvas, config);
+        }
+
+        // 1. Pipeline Donut Chart
+        try {
+            const rawPipelineData = {{ pipeline_counts_json|default:"[]"|safe }};
+            const pipelineLabels = {{ pipeline_labels_json|default:"[]"|safe }};
+            const hasPipelineData = Array.isArray(rawPipelineData) && rawPipelineData.some(function(v) { return Number(v) > 0; });
+
+            const pipelineChart = renderSafeChart('pipelineChart', {
+                type: 'doughnut',
+                data: {
+                    labels: hasPipelineData ? pipelineLabels : ['No Leads Yet'],
+                    datasets: [{
+                        data: hasPipelineData ? rawPipelineData : [1],
+                        backgroundColor: hasPipelineData ? [
+                            '#3b82f6', // New (Blue)
+                            '#06b6d4', // Contacted (Cyan)
+                            '#8b5cf6', // Viewing (Purple)
+                            '#f59e0b', // Negotiating (Amber)
+                            '#10b981', // Closed (Emerald)
+                            '#ef4444'  // Lost (Rose)
+                        ] : ['#e2e8f0'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: window.innerWidth < 992 ? 'bottom' : 'right',
+                            labels: { boxWidth: 12, padding: 12 }
+                        },
+                        tooltip: {
+                            enabled: hasPipelineData
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+
+            // Adjust legend position on resize
+            if (pipelineChart) {
+                window.addEventListener('resize', function() {
+                    const newPos = window.innerWidth < 992 ? 'bottom' : 'right';
+                    if (pipelineChart.options && pipelineChart.options.plugins && pipelineChart.options.plugins.legend) {
+                        if (pipelineChart.options.plugins.legend.position !== newPos) {
+                            pipelineChart.options.plugins.legend.position = newPos;
+                            pipelineChart.update();
+                        }
+                    }
+                });
+            }
+        } catch (err) {
+            console.error('Failed to initialize pipeline chart:', err);
+        }
+
+        // 2. Bookings by Type Bar Chart
+        try {
+            const rawBookingCounts = {{ booking_type_counts_json|default:"[]"|safe }};
+            const bookingLabels = {{ booking_type_labels_json|default:"[]"|safe }};
+
+            renderSafeChart('bookingsTypeChart', {
+                type: 'bar',
+                data: {
+                    labels: bookingLabels,
+                    datasets: [{
+                        label: 'Scheduled Engagements',
+                        data: rawBookingCounts,
+                        backgroundColor: [
+                            'rgba(37, 99, 235, 0.85)',
+                            'rgba(124, 58, 237, 0.85)',
+                            'rgba(16, 185, 129, 0.85)',
+                            'rgba(245, 158, 11, 0.85)'
+                        ],
+                        borderRadius: 8,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            suggestedMax: 5,
+                            ticks: { stepSize: 1, precision: 0 },
+                            grid: { color: 'rgba(226, 232, 240, 0.6)' }
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        } catch (err) {
+            console.error('Failed to initialize bookings by type chart:', err);
+        }
+
+        // 3. Activity Velocity Trend Line Chart
+        try {
+            const rawActivityCounts = {{ daily_activity_counts_json|default:"[]"|safe }};
+            const dateLabels = {{ date_labels_json|default:"[]"|safe }};
+
+            renderSafeChart('activityTrendChart', {
+                type: 'line',
+                data: {
+                    labels: dateLabels,
+                    datasets: [{
+                        label: 'Client Touchpoints',
+                        data: rawActivityCounts,
+                        borderColor: '#0284c7',
+                        backgroundColor: 'rgba(2, 132, 199, 0.12)',
+                        fill: true,
+                        tension: 0.35,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#0284c7',
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            suggestedMax: 5,
+                            ticks: { stepSize: 1, precision: 0 },
+                            grid: { color: 'rgba(226, 232, 240, 0.6)' }
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        } catch (err) {
+            console.error('Failed to initialize activity trend chart:', err);
+        }
+
+        // 4. Tasks Priority Chart
+        try {
+            const rawPriorityCounts = {{ priority_counts_json|default:"[]"|safe }};
+            const priorityLabels = {{ priority_labels_json|default:"[]"|safe }};
+
+            renderSafeChart('tasksPriorityChart', {
+                type: 'bar',
+                data: {
+                    labels: priorityLabels,
+                    datasets: [{
+                        label: 'Open Tasks',
+                        data: rawPriorityCounts,
+                        backgroundColor: [
+                            '#ef4444', // Urgent (Red)
+                            '#f59e0b', // High (Amber)
+                            '#3b82f6', // Medium (Blue)
+                            '#94a3b8'  // Low (Slate)
+                        ],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            suggestedMax: 5,
+                            ticks: { stepSize: 1, precision: 0 },
+                            grid: { color: 'rgba(226, 232, 240, 0.6)' }
+                        },
+                        y: { grid: { display: false } }
+                    }
+                }
+            });
+        } catch (err) {
+            console.error('Failed to initialize tasks priority chart:', err);
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initDashboardCharts);
+    } else {
+        initDashboardCharts();
+    }
+})();
+</script>
+{% endblock %}
